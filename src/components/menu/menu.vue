@@ -82,7 +82,10 @@ const selectMenu = (key: string, _keyPath: string[]) => {
   menuActiveIndex.value = key;
   const map = new Map<string, string>([
     ["0", "/"],
+    ["1", "collaborate"],
     ["2", "plan"],
+    ["3", "main"],
+    ["4", "history"],
   ]);
   router.push({ path: map.get(key) || "/" });
 };

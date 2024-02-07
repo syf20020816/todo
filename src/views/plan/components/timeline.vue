@@ -19,8 +19,10 @@
               <span class="collapse-title">{{ item.name }}</span>
             </h4>
             <p>{{ item.description }}</p>
-            <div>
-              <el-button type="danger">Remove TODO</el-button>
+            <div class="operation-btn-wrapper">
+              <el-button type="success">✅Complete TODO</el-button>
+              <el-button type="warning">🦥Delay</el-button>
+              <el-button type="danger">❗Remove TODO</el-button>
             </div>
           </el-card>
         </el-timeline-item>
@@ -61,7 +63,7 @@ const getStatusDot = computed(() => (item: ITODO) => {
   align-items: flex-start;
   justify-content: space-between;
   .left {
-    width: 55%;
+    width: 50%;
     box-sizing: border-box;
     padding-right: 12px;
     overflow-y: scroll;
@@ -86,9 +88,13 @@ const getStatusDot = computed(() => (item: ITODO) => {
         }
       }
     }
+    .operation-btn-wrapper {
+      box-sizing: border-box;
+      padding-bottom: 16px;
+    }
   }
   .right {
-    width: 45%;
+    width: 50%;
     box-sizing: border-box;
     padding: 0 6px;
     height: 100%;

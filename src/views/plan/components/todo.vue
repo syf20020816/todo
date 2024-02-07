@@ -5,6 +5,7 @@
         <span class="priority" :style="getPriorityDot(currentTodo)"></span>
       </span>
       <div class="todo-name">{{ currentTodo.name }}</div>
+      <el-button type="success">✅complete</el-button>
     </div>
     <div class="details">
       <div class="left">

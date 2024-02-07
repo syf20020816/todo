@@ -8,16 +8,31 @@
  * ============================================
  */
 
-import User from "../views/user.vue";
-import Plan from "../views/plan/plan.vue";
-import { RouteRecordRaw } from "vue-router";
+import User from '../views/user.vue'
+import Plan from '../views/plan/plan.vue'
+import Main from '../views/main.vue'
+import History from '../views/history.vue'
+import Collaborate from '../views/collaborate.vue'
+import { RouteRecordRaw } from 'vue-router'
 export const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
-    component: User,
+    path: '/',
+    component: User
   },
   {
-    path: "/plan",
-    component: Plan,
+    path: '/plan',
+    component: Plan
   },
-];
+  {
+    path: '/main',
+    component: Main
+  },
+  {
+    path: '/history',
+    component: History
+  },
+  {
+    path: '/collaborate',
+    component: Collaborate
+  }
+]

@@ -5,7 +5,7 @@
         <template #date-cell="{ data }">
           <p :class="data.isSelected ? 'is-selected' : ''" @click="getTODO(data)">
             {{ data.day.split("-").slice(1).join("-") }}
-            {{ data.isSelected ? "❇️" : "" }}
+            {{ data.isSelected ? "🚩" : "" }}
           </p>
         </template>
       </el-calendar>

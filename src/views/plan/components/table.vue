@@ -59,6 +59,15 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="table-pagination-wrapper">
+      <el-pagination
+        background
+        :page-size="20"
+        :pager-count="11"
+        layout="prev, pager, next"
+        :total="1000"
+      />
+    </div>
   </div>
 </template>
 
@@ -115,6 +124,7 @@ const getTags = computed(() => (row: any, _index: number): {
   justify-content: center;
   overflow-y: scroll;
   scrollbar-width: thin;
+  flex-wrap: wrap;
   // 覆盖el-table默认颜色
   // 注意：这里覆盖了element-plus的样式，如果需要使用element-plus的样式，需要将element-plus的样式覆盖
   // 例如：@import "element-plus/theme-chalk/src/common/var.scss";
@@ -143,6 +153,13 @@ const getTags = computed(() => (row: any, _index: number): {
     box-sizing: border-box;
     padding: 16px;
     justify-content: center;
+  }
+  .table-pagination-wrapper {
+    position: fixed;
+    bottom: 6px;
+    right: 6px;
+    z-index: 11;
+    background-color: #11100f;
   }
 }
 </style>

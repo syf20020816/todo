@@ -20,23 +20,23 @@ $component: "Header";
     align-items: center;
     justify-content: center;
     transition: all 0.35s ease-in-out;
-    &:hover{
+    &:hover {
       background-color: $bg-color-hover;
     }
   }
-  .title{
+  .title {
     display: inline-block;
     margin-right: 48px;
     font-size: 1.5rem;
     font-weight: 700;
-    .clip{
+    .clip {
       display: inline-block;
       background: linear-gradient(90deg, #f60, #f90);
       background-clip: text;
       color: transparent;
     }
   }
-  .search-wrap{
+  .search-wrap {
     width: 46%;
     box-sizing: border-box;
     margin: 0 8%;
@@ -48,6 +48,17 @@ $component: "Header";
     display: flex;
     align-items: center;
     justify-content: center;
-    
+  }
+
+  :deep(.el-drawer) {
+    background-color: $bg-color-menu !important;
+    .setting-drawer-title {
+      font-weight: 700;
+      color: $bg-color-light;
+    }
+  }
+  .alert-wrapper {
+    text-align: left;
+    font-weight: 700;
   }
 }

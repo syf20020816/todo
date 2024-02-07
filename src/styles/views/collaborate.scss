@@ -1,0 +1,73 @@
+@use "../../styles/name.scss" as *;
+@use "../src/var.scss" as *;
+
+$component: "Collaborate";
+
+@include buildView($component) {
+  height: 100%;
+  width: inherit;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+  @include buildWrap($component, "teams") {
+    height: 100%;
+    width: 25%;
+    min-width: 300px;
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    padding: 4px;
+    overflow-y: scroll;
+    border-right: 1px dashed $bg-color-hover;
+    scrollbar-width: thin;
+    .team_wrapper {
+      overflow: hidden;
+      cursor: pointer;
+      margin: 6px 0;
+      height: 60px;
+      width: 99%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: $bg-color-menu;
+      border-radius: 4px;
+      transition: all 0.25s ease-in-out;
+      &:hover {
+        background-color: $bg-color-hover;
+      }
+      .team-avatar {
+        .teamIcons {
+          height: 48px;
+          width: 48px;
+          border-radius: 50%;
+          margin: 6px;
+        }
+      }
+      .team-details {
+        width: calc(100% - 60px);
+        height: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+        padding: 6px;
+        text-align: left;
+        .name {
+          margin: 0;
+          padding: 0px;
+        }
+        .desc {
+          padding: 0;
+          margin: 0;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  @include buildWrap($component, "details") {
+    height: 100%;
+    width: 75%;
+  }
+}
