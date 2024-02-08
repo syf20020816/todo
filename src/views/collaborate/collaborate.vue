@@ -13,7 +13,12 @@
     </div>
     <div :class="buildWrap(component, 'details')">
       <div :class="buildWrap('details', 'team-member')">
-        <div class="team-member-wrapper" v-for="item in memberList" :key="item.id">
+        <div
+          class="team-member-wrapper"
+          v-for="item in memberList"
+          :key="item.id"
+          @click="chooseMember(item)"
+        >
           <div class="team-avatar">
             <img :src="useAvatar(item.avatar)" alt="" class="teamIcons" />
           </div>
@@ -24,7 +29,7 @@
         </div>
       </div>
       <div :class="buildWrap('details', 'panel')">
-        <Panel></Panel>
+        <Panel :member="currentMember"></Panel>
       </div>
     </div>
   </div>
@@ -105,6 +110,18 @@ const memberList = reactive<
     email: "Surrealism is a SQL Builder",
   },
 ]);
+
+const currentMember = ref<{
+  id: string;
+  name: string;
+  role: string;
+  avatar: Avatars;
+  email: string;
+}>(memberList[0]);
+
+const chooseMember = (item: any) => {
+  currentMember.value = item;
+};
 </script>
 
 <style lang="scss" scoped>

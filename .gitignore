@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+back_end/todo/target
+back_end/todo/Cargo.lock
