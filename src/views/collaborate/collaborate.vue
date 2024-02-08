@@ -11,12 +11,28 @@
         </div>
       </div>
     </div>
-    <div :class="buildWrap(component, 'details')"></div>
+    <div :class="buildWrap(component, 'details')">
+      <div :class="buildWrap('details', 'team-member')">
+        <div class="team-member-wrapper" v-for="item in memberList" :key="item.id">
+          <div class="team-avatar">
+            <img :src="useAvatar(item.avatar)" alt="" class="teamIcons" />
+          </div>
+          <div class="team-details">
+            <h5 class="name">{{ item.name }}</h5>
+            <p class="desc">{{ item.email }}</p>
+          </div>
+        </div>
+      </div>
+      <div :class="buildWrap('details', 'panel')">
+        <Panel></Panel>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive } from "vue";
+import Panel from "./components/panel.vue";
 import {
   AvatarMap,
   Avatars,
@@ -27,9 +43,10 @@ import {
   build,
   buildView,
   buildWrap,
+  useAvatar,
   useTeam,
-} from "../core";
-import { Timeline } from "./plan";
+} from "../../core";
+import { Timeline } from "../plan";
 const component = "Collaborate";
 
 const teamList = reactive<
@@ -63,8 +80,33 @@ const teamList = reactive<
     description: "Surrealism is a SQL Builder",
   },
 ]);
+
+const memberList = reactive<
+  {
+    id: string;
+    name: string;
+    role: string;
+    avatar: Avatars;
+    email: string;
+  }[]
+>([
+  {
+    id: "0",
+    name: "Surrealism",
+    role: "Manager",
+    avatar: Avatars.Avatar1,
+    email: "Surrealism is a SQL Builder",
+  },
+  {
+    id: "1",
+    name: "SurrealismUI",
+    role: "Manager",
+    avatar: Avatars.Avatar3,
+    email: "Surrealism is a SQL Builder",
+  },
+]);
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/views/collaborate.scss";
+@import "../../styles/views/collaborate.scss";
 </style>
