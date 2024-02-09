@@ -25,14 +25,6 @@
             placeholder="please input your password"
           />
         </el-form-item>
-        <el-form-item label="check pwd" prop="pwdCheck">
-          <el-input
-            show-password
-            type="password"
-            v-model="userForm.pwdCheck"
-            placeholder="please input your password again"
-          />
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitForm(userFormRef)"> Signin</el-button>
           <el-button type="warning" @click="toSignup"
@@ -70,6 +62,8 @@ import {
   UserLoginForm,
 } from "../../../core";
 import { ref, reactive } from "vue";
+import api from "../../../api";
+import { ElMessage } from "element-plus";
 
 import type { FormInstance, FormRules } from "element-plus";
 const component = "Signin";
@@ -79,7 +73,6 @@ const userFormRef = ref<FormInstance>();
 const userForm = reactive<UserLoginForm>({
   username: "",
   password: "",
-  pwdCheck: "",
 });
 
 // 类型“FormRules”不是泛型类型
@@ -97,9 +90,10 @@ const rules = reactive<FormRules<UserLoginForm>>({
 
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate((valid, _fields) => {
+  await formEl.validate(async (valid, _fields) => {
     if (valid) {
-      // 发送登录请求
+      const data = await api.user.signin(userForm);
+      console.log(data);
     } else {
       return;
     }

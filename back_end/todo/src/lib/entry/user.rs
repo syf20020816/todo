@@ -8,6 +8,8 @@ use rocket::serde::{self, Deserialize, Serialize};
 pub struct User {
     username: String,
     name: String,
+    #[serde(skip_serializing)]
+    password: String,
     avatar: Avatars,
     email: String,
     #[serde(rename(serialize = "teamNumber"))]

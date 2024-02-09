@@ -15,8 +15,8 @@ const request = Request.init()
  * @param params
  * @returns
  */
-export const login = async (params: UserLoginForm): Promise<any> => {
-  const { data: res } = await request.get('/user/info/' + params)
+export const signin = async (params: UserLoginForm): Promise<any> => {
+  const { data: res } = await request.post('/user/signin/', params)
   return res
 }
 

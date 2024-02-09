@@ -15,10 +15,17 @@ export class Request {
 
   public static init() {
     this.axiosInstance = axios.create({
-      baseURL: 'http://localhost:10016/',
-      timeout: 3600
+      baseURL: 'http://localhost:10016/api/v1',
+      timeout: 3600,
+      headers: {
+        // CORS 必填。可以填请求时Origin字段的值，表示允许本次跨域请求，也可以填“*”，表示允许任意地址的请求
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': 'true'
+      }
     })
+    this.axiosInstance.defaults.headers.common
     this.initInterceptors()
+    // this.cors()
     return this.axiosInstance
   }
 
