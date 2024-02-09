@@ -1,14 +1,31 @@
 <template>
   <Header></Header>
-  <div class="app-main-wrapper">
+  <div class="app-main-wrapper" v-if="userStore.isSignIn">
     <div class="main-wrapper-menu"><Menu></Menu></div>
     <router-view></router-view>
+  </div>
+  <div v-else class="app-main-wrapper">
+    <Login></Login>
   </div>
 </template>
 
 <script setup lang="ts">
 import Header from "./components/header/header.vue";
 import Menu from "./components/menu/menu.vue";
+import { user as userPinia } from "./store/src/user";
+import { init } from "./core";
+import { onMounted } from "vue";
+import Login from "./views/login/login.vue";
+
+const userStore = userPinia();
+
+userStore.checkSetIsSignIn();
+
+const initApp = () => {
+  init();
+};
+
+initApp();
 </script>
 
 <style lang="scss" scoped>

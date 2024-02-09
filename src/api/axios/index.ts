@@ -8,54 +8,52 @@
  */
 
 //导入axios
-import axios, { AxiosInstance,AxiosRequestConfig,AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-export class Request{
-  public static axiosInstance:AxiosInstance
+export class Request {
+  public static axiosInstance: AxiosInstance
 
-  public static init(){
+  public static init() {
     this.axiosInstance = axios.create({
-      baseURL:'http://localhost:8484/',
-      timeout:1500
+      baseURL: 'http://localhost:10016/',
+      timeout: 3600
     })
     this.initInterceptors()
     return this.axiosInstance
   }
 
-  public static initInterceptors(){
+  public static initInterceptors() {
     this.axiosInstance.interceptors.request.use(
-      (config:AxiosRequestConfig)=>{
-        const token = window.localStorage.getItem('token')
-        if(token!=null&&config?.headers){
+      config => {
+        const token = window.localStorage.getItem('todo-token')
+        if (token !== null && config?.headers) {
           console.log(token)
           //后续采用将token作为请求头中的参数进行向后端请求
-           config.headers.token  = "test"
-           
+          config.headers.token = token
         }
         return config
       },
-      (error:any)=>{
+      (error: any) => {
         console.log(error)
       }
     )
 
     this.axiosInstance.interceptors.response.use(
-      (response:AxiosResponse)=>{
-        if(response.status===200){
+      (response: AxiosResponse) => {
+        if (response.status === 200) {
           return response.data
-        }else{
+        } else {
           this.errorHandle(response)
           return null
         }
       },
-      (error:any)=>{
+      (error: any) => {
         this.errorHandle(error)
       }
     )
   }
 
-
-  public static errorHandle(res:any){
+  public static errorHandle(res: any) {
     console.log(res)
   }
 }

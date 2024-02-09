@@ -7,6 +7,7 @@
     <!-- 搜索框 -->
     <div class="search-wrap">
       <el-input
+        v-if="userStore.isSignIn"
         v-model="searchValue"
         placeholder="Search TODOs"
         class="input-with-select"
@@ -21,17 +22,25 @@
     </div>
     <!-- 右侧工具栏 -->
     <div :class="buildWrap(component, 'right-wrap')">
-      <div
-        @click="openSetting"
-        v-html="useSvg(SVGs.SETTING, 24)"
-        :class="buildWrap(component, 'logo-wrap')"
-      ></div>
-      <div
-        v-html="useSvg(SVGs.NOTE, 24)"
-        :class="buildWrap(component, 'logo-wrap')"
-      ></div>
-      <div :class="buildWrap(component, 'logo-wrap')">
-        <img :src="userAvatar" alt="" height="48" width="48" style="border-radius: 50%" />
+      <div v-if="userStore.isSignIn">
+        <div
+          @click="openSetting"
+          v-html="useSvg(SVGs.SETTING, 24)"
+          :class="buildWrap(component, 'logo-wrap')"
+        ></div>
+        <div
+          v-html="useSvg(SVGs.NOTE, 24)"
+          :class="buildWrap(component, 'logo-wrap')"
+        ></div>
+        <div :class="buildWrap(component, 'logo-wrap')">
+          <img
+            :src="userAvatar"
+            alt=""
+            height="48"
+            width="48"
+            style="border-radius: 50%"
+          />
+        </div>
       </div>
     </div>
     <el-drawer
