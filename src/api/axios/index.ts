@@ -9,6 +9,7 @@
 
 //导入axios
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { ElMessage } from 'element-plus'
 
 export class Request {
   public static axiosInstance: AxiosInstance
@@ -48,9 +49,14 @@ export class Request {
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => {
         if (response.status === 200) {
-          return response.data
+          if (response.data['code'] === 200) {
+            return response.data.data
+          } else {
+            this.errorHandle(response.data.msg)
+            return undefined
+          }
         } else {
-          this.errorHandle(response)
+          this.errorHandle(JSON.stringify(response))
           return null
         }
       },
@@ -60,7 +66,10 @@ export class Request {
     )
   }
 
-  public static errorHandle(res: any) {
-    console.log(res)
+  public static errorHandle(res: string) {
+    ElMessage({
+      type: 'error',
+      message: res
+    })
   }
 }

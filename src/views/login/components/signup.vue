@@ -79,19 +79,18 @@
 
 <script lang="ts" setup>
 import {
-  AvatarMap,
-  Avatars,
-  Teams,
-  build,
   buildView,
   buildWrap,
-  useTeam,
 } from "../../../core";
 import { ref, reactive } from "vue";
 
-import type { FormInstance, FormRules } from "element-plus";
-const component = "Signup";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import api from "../../../api";
+import {user as userPinia} from '../../../store/src/user'
 
+
+const component = "Signup";
+const userStore = userPinia();
 const emits = defineEmits(["to-signin"]);
 
 interface UserForm {
@@ -141,9 +140,20 @@ const rules = reactive<FormRules<UserForm>>({
 
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate((valid, fields) => {
+  await formEl.validate(async (valid, fields) => {
     if (valid) {
-      console.log("submit!");
+      if(userForm.password !== userForm.pwdCheck){
+        ElMessage({
+          type:"error",
+          message:"The passwords filled in twice are different, please check!"
+        })
+        return;
+      }else{
+        const data = await api.user.signup(userForm);
+        if(typeof data !== 'undefined'){
+          userStore.setUser(data);
+        }
+      }
     } else {
       console.log("error submit!", fields);
     }

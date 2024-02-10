@@ -6,7 +6,8 @@
  * - 等
  */
 import { Request } from '../axios/index'
-import { UserLoginForm } from '../../core'
+import { User, UserLoginForm } from '../../core'
+import type { ApiResponse } from './type'
 
 const request = Request.init()
 
@@ -17,6 +18,11 @@ const request = Request.init()
  */
 export const signin = async (params: UserLoginForm): Promise<any> => {
   const { data: res } = await request.post('/user/signin/', params)
+  return res
+}
+
+export const signup = async (params: UserLoginForm): Promise<ApiResponse<User>> => {
+  const { data: res } = await request.post('/user/signup/', params)
   return res
 }
 

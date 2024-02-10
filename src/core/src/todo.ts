@@ -1,5 +1,8 @@
 import { TagProps } from 'element-plus'
 import { Avatars } from './avatar'
+import { Option } from './common'
+import { Annex } from './annex'
+import { User } from './user'
 
 /**优先级等级枚举 */
 export enum PriorityEnum {
@@ -27,13 +30,13 @@ export const usePriorityColor = (priority: PriorityEnum): string => {
   return PriorityColorMap.get(priority) || '#ADAC9A'
 }
 
-/**用户类型 */
-type User = {
-  id: string
-  name: string
-  email: string
-  avatar: Avatars
-}
+// /**用户类型 */
+// type User = {
+//   id: string
+//   name: string
+//   email: string
+//   avatar: Avatars
+// }
 
 export type IDate = {
   start: string
@@ -54,36 +57,42 @@ export enum Status {
 }
 
 const StatusTypeMap = new Map<Status, string>([
-  [Status.NOT_START,"#ADAC9A"],
-  [Status.IN_PROGRESS,"#56D4DD"],
-  [Status.COMPLETED,"#8DDB80"],
-  [Status.PENDING,"#8EBAC7"],
+  [Status.NOT_START, '#ADAC9A'],
+  [Status.IN_PROGRESS, '#56D4DD'],
+  [Status.COMPLETED, '#8DDB80'],
+  [Status.PENDING, '#8EBAC7']
+])
 
-]);
-
-export const useStatus = (status:Status):string=>{
-  return StatusTypeMap.get(status)||"#ADAC9A";
+export const useStatus = (status: Status): string => {
+  return StatusTypeMap.get(status) || '#ADAC9A'
 }
 
 type ITagProps = {
-  type: 'info' | 'success' | 'warning' | ''|"danger"
+  type: 'info' | 'success' | 'warning' | '' | 'danger'
   effect: 'dark' | 'light' | 'plain'
-  label : string
+  label: string
 }
 
-/**待办实体类 */
-export type ITODO = {
+export type Todo = {
   id: string
   name: string
-  priority: PriorityEnum
-  /**审核人 */
-  reviewers: User[]
-  performers: User[]
-  date: IDate
-  tags: ITagProps[]
+  priority: Priority
+  /// 审核人
+  reviewers: Array<User>
+  performers: Array<User>
+  date: Date
+  tags: Array<ITagProps>
   status: Status
-  description?: string
-  information?: string
-  /**附件 */
-  annex?: any
+  description: Option<String>
+  information: Option<String>
+  /// 附件
+  annexs: Option<Array<Annex>>
+}
+
+export type TodoBox = {
+  low: Array<Todo>
+  mid: Array<Todo>
+  fatal: Array<Todo>
+  //关注
+  focus: Array<Todo>
 }

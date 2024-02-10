@@ -6,10 +6,11 @@
  * ==============================
  */
 import { userLogin, getUserInfo } from './src/defaultApi'
-import { signin } from './src/user'
+import { signin, signup } from './src/user'
 
 export default {
   user: {
-    signin
+    signin,
+    signup
   }
 }

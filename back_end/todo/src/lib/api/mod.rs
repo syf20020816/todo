@@ -1,4 +1,4 @@
 mod file;
 mod user;
 
-pub use user::signin;
+pub use user::{signin, signup};

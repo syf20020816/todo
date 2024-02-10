@@ -54,7 +54,6 @@
 import {
   AvatarMap,
   Avatars,
-  Teams,
   build,
   buildView,
   buildWrap,

@@ -53,3 +53,18 @@ impl From<&str> for Avatars {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub enum TeamAvatars {
+    Team1,
+    Team2,
+    Team3,
+    Team4,
+}
+
+impl Default for TeamAvatars {
+    fn default() -> Self {
+        TeamAvatars::Team1
+    }
+}

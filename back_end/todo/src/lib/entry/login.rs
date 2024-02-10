@@ -25,3 +25,18 @@ pub struct Signup {
     email: String,
     password: String,
 }
+
+impl Signup {
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+    pub fn password(&self) -> &str {
+        &self.password
+    }
+    pub fn email(&self) -> &str {
+        &self.email
+    }
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}

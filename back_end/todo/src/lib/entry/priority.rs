@@ -90,6 +90,12 @@ pub struct Priority {
     name: Priorities,
 }
 
+impl Default for Priority {
+    fn default() -> Self {
+        Priorities::default().into()
+    }
+}
+
 impl Priority {
     pub fn new(color: HexColor, name: Priorities) -> Self {
         Priority { color, name }

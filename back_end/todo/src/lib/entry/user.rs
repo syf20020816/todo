@@ -1,4 +1,5 @@
 use super::Avatars;
+use super::Team;
 use super::TodoBox;
 use rocket::serde::{self, Deserialize, Serialize};
 
@@ -8,15 +9,56 @@ use rocket::serde::{self, Deserialize, Serialize};
 pub struct User {
     username: String,
     name: String,
-    #[serde(skip_serializing)]
+    // #[serde(skip_serializing)]
     password: String,
     avatar: Avatars,
     email: String,
     #[serde(rename(serialize = "teamNumber"))]
+    #[serde(rename(deserialize = "teamNumber"))]
     team_number: u8,
     #[serde(rename(serialize = "todoNumber"))]
+    #[serde(rename(deserialize = "todoNumber"))]
     todo_number: u16,
     #[serde(rename(serialize = "totalTodo"))]
+    #[serde(rename(deserialize = "totalTodo"))]
     total_todo: u16,
     todos: TodoBox,
+    teams: Option<Vec<Team>>,
+}
+
+impl User {
+    pub fn new() -> User {
+        User::default()
+    }
+    pub fn quick_init(name: &str, username: &str, password: &str, email: &str) -> Self {
+        User {
+            username: username.to_string(),
+            name: name.to_string(),
+            password: password.to_string(),
+            avatar: Avatars::default(),
+            email: email.to_string(),
+            team_number: 0,
+            todo_number: 0,
+            total_todo: 0,
+            todos: TodoBox::default(),
+            teams: None,
+        }
+    }
+}
+
+impl Default for User {
+    fn default() -> Self {
+        Self {
+            username: Default::default(),
+            name: Default::default(),
+            password: Default::default(),
+            avatar: Default::default(),
+            email: Default::default(),
+            team_number: 0,
+            todo_number: 0,
+            total_todo: 0,
+            todos: Default::default(),
+            teams: None,
+        }
+    }
 }

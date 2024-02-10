@@ -8,6 +8,16 @@ pub struct Date {
     during: usize,
 }
 
+impl Default for Date {
+    fn default() -> Self {
+        Self {
+            start: String::new(),
+            end: String::new(),
+            during: 0_usize,
+        }
+    }
+}
+
 impl Date {
     pub fn new(start: &str, end: &str) -> Self {
         let start = start.to_string();
