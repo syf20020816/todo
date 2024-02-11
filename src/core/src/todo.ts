@@ -87,12 +87,15 @@ export type Todo = {
   information: Option<String>
   /// 附件
   annexs: Option<Array<Annex>>
+  is_focus: boolean
 }
 
 export type TodoBox = {
   low: Array<Todo>
   mid: Array<Todo>
+  // high 和 emergency都属于fatal
   fatal: Array<Todo>
   //关注
   focus: Array<Todo>
+  history: Array<Todo>
 }

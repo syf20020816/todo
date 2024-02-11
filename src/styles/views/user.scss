@@ -115,6 +115,16 @@ $component: "User";
     justify-content: flex-start;
     overflow-x: scroll;
     scrollbar-width: thin;
+    .team-no {
+      box-sizing: border-box;
+      padding: 16px;
+      font-size: 16px;
+      .create-wrapper {
+        font-weight: 700;
+        color: $force-color;
+        cursor: pointer;
+      }
+    }
     .team-item {
       background-color: $bg-color-menu;
       box-shadow: 0px 0px 0px 1px $bg-color-hover;
@@ -131,10 +141,10 @@ $component: "User";
       padding: 12px;
       .header {
         display: flex;
-        
+
         height: 48px;
         width: 100%;
-        .info{
+        .info {
           text-indent: 20px;
           text-align: left;
           height: 48px;

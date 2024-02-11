@@ -39,11 +39,7 @@
         </div>
       </div>
       <el-progress
-        :percentage="
-          parseFloat(
-            (1 - userStore.user.todoNumber / userStore.user.totalTodo).toFixed(2)
-          ) * 100
-        "
+        :percentage="countSolve"
         :stroke-width="15"
         striped
         striped-flow
@@ -52,13 +48,13 @@
       />
     </div>
     <div :class="buildWrap(component, 'teams')">
-      <div style="display: flex">
-        <div class="team-item" v-for="(item, index) in teamList" :key="index">
+      <div style="display: flex" v-if="hasTeam">
+        <div class="team-item" v-for="(item, index) in userStore.user.teams" :key="index">
           <div class="header">
-            <img :src="useTeam(item.teamIcon)" alt="" class="teamIcons" />
+            <img :src="useTeam(item.avatar)" alt="" class="teamIcons" />
             <div class="info">
               <div>Team : {{ item.name }}</div>
-              <div>Role : {{ item.role }}</div>
+              <div>Role : {{ setTeamRole(item.owner) }}</div>
             </div>
           </div>
           <div style="font-size: 14px; width: 100%">
@@ -66,6 +62,12 @@
           </div>
           <el-button type="info">GOTO</el-button>
         </div>
+      </div>
+      <div v-else class="team-no">
+        <p>
+          You now have no Team.
+          <a @click="toCollaborate" class="create-wrapper">Click here to create!</a>
+        </p>
       </div>
     </div>
   </div>
@@ -110,6 +112,7 @@ import {
   AvatarMap,
   Avatars,
   TeamAvatars,
+  User,
   build,
   buildView,
   buildWrap,
@@ -117,12 +120,21 @@ import {
 } from "../core";
 import { user } from "../store/src/user";
 import { SVGs, useSvg } from "../components";
+import { useRouter } from "vue-router";
+
 const avatarDrawer = ref(false);
 const component = "User";
-
+const router = useRouter();
 const userStore = user();
 const chosenAvatar = ref(userStore.user.avatar);
-const busyValue = ref(3);
+const busyValue = computed(() => {
+  let { todos } = userStore.user;
+  let { fatal, focus } = todos ?? {
+    fatal: [],
+    focus: [],
+  };
+  return fatal.length + focus.length;
+});
 const busyIcons = [Coffee, Platform, WarningFilled];
 
 /**头像列表 */
@@ -149,10 +161,12 @@ const changeAvatar = () => {
 
 /**计算用户繁忙程度 */
 const busyTemplate = computed(() => {
+  let { todoNumber } = userStore.user;
+  let busy = busyValue.value / todoNumber;
   let msg = "Free";
-  if (busyValue.value >= 4) {
+  if (busy >= 0.6) {
     msg = "Busy";
-  } else if (busyValue.value >= 2) {
+  } else if (busyValue.value >= 0.4) {
     msg = "Moderate";
   }
   return `busy level: ${msg}!`;
@@ -236,6 +250,35 @@ const teamList = reactive<
     description: "Surrealism is a SQL Builder",
   },
 ]);
+
+const countSolve = computed(() => {
+  let { todoNumber, totalTodo } = userStore.user;
+  if (todoNumber === 0 || totalTodo === 0) {
+    return 100;
+  }
+  let solve = (1 - todoNumber / todoNumber).toFixed(2);
+  console.log(todoNumber / totalTodo);
+  let solveF = parseFloat(solve) * 100;
+  return solveF;
+});
+
+const setTeamRole = computed(() => (owner: User) => {
+  let { username: ownername } = owner;
+  let { username } = userStore.user;
+  if (username === ownername) {
+    return "Manager";
+  } else {
+    return "Parter";
+  }
+});
+
+const hasTeam = computed(() => {
+  return userStore.user.teams?.length ?? 0 !== 0;
+});
+
+const toCollaborate = () => {
+  router.push({ path: "collaborate" });
+};
 </script>
 
 <style lang="scss">

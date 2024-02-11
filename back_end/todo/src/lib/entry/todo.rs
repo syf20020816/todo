@@ -17,6 +17,7 @@ pub struct Todo {
     information: Option<String>,
     /// 附件
     annexs: Option<Vec<Annex>>,
+    is_focus: bool,
 }
 
 impl Default for Todo {
@@ -33,6 +34,7 @@ impl Default for Todo {
             description: None,
             information: None,
             annexs: None,
+            is_focus: false,
         }
     }
 }
@@ -45,6 +47,7 @@ pub struct TodoBox {
     fatal: Vec<Todo>,
     //关注
     focus: Vec<Todo>,
+    history: Vec<Todo>,
 }
 
 impl Default for TodoBox {
@@ -54,6 +57,7 @@ impl Default for TodoBox {
             mid: Default::default(),
             fatal: Default::default(),
             focus: Default::default(),
+            history: Default::default(),
         }
     }
 }
