@@ -41,10 +41,10 @@ pub enum Priorities {
     Low,
 }
 
-/// [PriorityEnum.Emergent, '#E86D5E'],
-/// [PriorityEnum.High, '#F69D50'],
-/// [PriorityEnum.Mid, '#6CB6FF'],
-/// [PriorityEnum.Low, '#ADAC9A']
+/// [Priorities.Emergent, '#E86D5E'],
+/// [Priorities.High, '#F69D50'],
+/// [Priorities.Mid, '#6CB6FF'],
+/// [Priorities.Low, '#ADAC9A']
 impl Priorities {
     pub fn get_color(&self) -> HexColor {
         let color = match self {

@@ -11,28 +11,17 @@ import type { ApiResponse } from './type'
 
 const request = Request.init()
 
-/**
- *
- * @param params
- * @returns
- */
-export const signin = async (params: UserLoginForm): Promise<any> => {
-  const { data: res } = await request.post('/user/signin/', params)
-  return res
+export const signin = async (params: UserLoginForm): Promise<ApiResponse<User>> => {
+  const { data } = await request.post('/user/signin/', params)
+  return data
 }
 
 export const signup = async (params: UserLoginForm): Promise<ApiResponse<User>> => {
-  const { data: res } = await request.post('/user/signup/', params)
-  return res
+  const { data } = await request.post('/user/signup/', params)
+  return data
 }
 
-/**
- * axios的post方法，这里我演示简单写一下函数不声明类型
- * 则默认为Promise<any>,userLogin的返回值类型则是any
- * @param params
- * @returns
- */
-export const userLogin = async (params: any) => {
-  const { data: res } = await request.post('/user/login', params)
-  return res
+export const getUserInfo = async (username: string): Promise<ApiResponse<User>> => {
+  const { data } = await request.get('/user/info/' + username)
+  return data
 }

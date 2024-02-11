@@ -14,6 +14,7 @@ export const user = defineStore('user', {
   actions: {
     useAvatar,
     checkSetIsSignIn() {
+      console.log('check')
       let flag = window.localStorage.getItem('todo-sign-in')
       // null 或 空字符串 或 undefined的情况下设置false
       if (flag ?? false) {
@@ -24,6 +25,25 @@ export const user = defineStore('user', {
     },
     setUser(user: User) {
       this.user = user
+      window.localStorage.setItem('todo-user', JSON.stringify(this.user))
+    },
+    setSignIn() {
+      window.localStorage.setItem('todo-sign-in', this.user.username.toString())
+      this.isSignIn = true
+    },
+    getUsername() {
+      let username = this.user.username ?? window.localStorage.getItem('todo-sign-in')
+      if (username) {
+        return username
+      } else {
+        // 丢失了username的情况说明需要下线登录
+        this.logout()
+      }
+    },
+    logout() {
+      window.localStorage.clear()
+      this.isSignIn = false
+      this.user = {} as User
     }
   }
 })

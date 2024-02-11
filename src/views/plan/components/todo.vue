@@ -85,19 +85,19 @@
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
 import {
-  ITODO,
-  PriorityEnum,
+  Todo,
+  Priorities,
   usePriorityColor,
   useAvatar,
   useStatus,
 } from "../../../core";
 
 const props = defineProps<{
-  currentTodo?: ITODO;
+  currentTodo?: Todo;
 }>();
 
-const getPriorityDot = computed(() => (item: ITODO) => {
-  let { priority } = item || PriorityEnum.Low;
+const getPriorityDot = computed(() => (item: Todo) => {
+  let { priority } = item || Priorities.Low;
   return `background-color : ${usePriorityColor(priority)}`;
 });
 </script>

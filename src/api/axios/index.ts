@@ -50,7 +50,7 @@ export class Request {
       (response: AxiosResponse) => {
         if (response.status === 200) {
           if (response.data['code'] === 200) {
-            return response.data.data
+            return response.data
           } else {
             this.errorHandle(response.data.msg)
             return undefined

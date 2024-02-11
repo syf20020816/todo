@@ -5,7 +5,7 @@ import { Annex } from './annex'
 import { User } from './user'
 
 /**优先级等级枚举 */
-export enum PriorityEnum {
+export enum Priorities {
   Emergent = 'emergent',
   High = 'high',
   Mid = 'mid',
@@ -15,18 +15,18 @@ export enum PriorityEnum {
 /**优先级 */
 export type Priority = {
   color: string
-  name: PriorityEnum
+  name: Priorities
 }
 
 /**优先级的颜色映射器 */
-const PriorityColorMap = new Map<PriorityEnum, string>([
-  [PriorityEnum.Emergent, '#E86D5E'],
-  [PriorityEnum.High, '#F69D50'],
-  [PriorityEnum.Mid, '#6CB6FF'],
-  [PriorityEnum.Low, '#ADAC9A']
+const PriorityColorMap = new Map<Priorities, string>([
+  [Priorities.Emergent, '#E86D5E'],
+  [Priorities.High, '#F69D50'],
+  [Priorities.Mid, '#6CB6FF'],
+  [Priorities.Low, '#ADAC9A']
 ])
 
-export const usePriorityColor = (priority: PriorityEnum): string => {
+export const usePriorityColor = (priority: Priorities): string => {
   return PriorityColorMap.get(priority) || '#ADAC9A'
 }
 
@@ -76,7 +76,7 @@ type ITagProps = {
 export type Todo = {
   id: string
   name: string
-  priority: Priority
+  priority: Priorities
   /// 审核人
   reviewers: Array<User>
   performers: Array<User>

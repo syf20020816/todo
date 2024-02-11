@@ -33,13 +33,25 @@
           :class="buildWrap(component, 'logo-wrap')"
         ></div>
         <div :class="buildWrap(component, 'logo-wrap')">
-          <img
-            :src="userAvatar"
-            alt=""
-            height="48"
-            width="48"
-            style="border-radius: 50%"
-          />
+          <el-popconfirm
+            width="220"
+            confirm-button-text="OK"
+            cancel-button-text="Cancel"
+            :icon="InfoFilled"
+            icon-color="#626AEF"
+            title="Logout Now?"
+            @confirm="Logout"
+          >
+            <template #reference>
+              <img
+                :src="userAvatar"
+                alt=""
+                height="48"
+                width="48"
+                style="border-radius: 50%"
+              />
+            </template>
+          </el-popconfirm>
         </div>
       </div>
     </div>
@@ -128,6 +140,8 @@ import { SVGs, useSvg } from "../index";
 import { user } from "../../store/src/user";
 import type { FormInstance, FormRules } from "element-plus";
 
+import { InfoFilled } from "@element-plus/icons-vue";
+
 const component = "Header";
 defineComponent({
   name: component,
@@ -141,7 +155,7 @@ const settingDrawer = ref(false);
  * 计算得出用户头像
  */
 const userAvatar = computed(() => {
-  return userStore.useAvatar(userStore.userInfo.avatar);
+  return userStore.useAvatar(userStore.user.avatar);
 });
 
 /**
@@ -212,10 +226,11 @@ const resetForm = (formEl: FormInstance | undefined) => {
   formEl.resetFields();
 };
 
-const options = Array.from({ length: 10000 }).map((_, idx) => ({
-  value: `${idx + 1}`,
-  label: `${idx + 1}`,
-}));
+const Logout = () => {
+  // 1.清理缓存
+  // 2.清理用户信息
+  userStore.logout();
+};
 </script>
 
 <style lang="scss" scoped>

@@ -51,15 +51,15 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from "vue";
-import { Avatars, buildView, PriorityEnum, Status, ITODO } from "../../core";
+import { Avatars, buildView, Priorities, Status, Todo } from "../../core";
 import { SVGs, useSvg } from "../../components";
 import { CreatePreview, Calendar, Timeline, Table } from "./index";
 const component = "Plan";
-const todos = ref<ITODO[]>([
+const todos = ref<Todo[]>([
   {
     id: "001",
     name: "Fix card display",
-    priority: PriorityEnum.Emergent,
+    priority: Priorities.Emergent,
     reviewers: [
       {
         id: "1",
@@ -99,7 +99,7 @@ const todos = ref<ITODO[]>([
   {
     id: "002",
     name: "Fix card display2",
-    priority: PriorityEnum.Emergent,
+    priority: Priorities.Emergent,
     reviewers: [
       {
         id: "1",

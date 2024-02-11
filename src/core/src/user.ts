@@ -12,12 +12,12 @@ type User = {
   username: String
   name: String
   // #[serde(skip_serializing)]
-  password: String
+  // password: String
   avatar: Avatars
   email: String
-  team_number: number
-  todo_number: number
-  total_todo: number
+  teamNumber: number
+  todoNumber: number
+  totalTodo: number
   todos: TodoBox
   teams: Option<Array<Team>>
 }

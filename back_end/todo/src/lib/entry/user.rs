@@ -44,6 +44,9 @@ impl User {
             teams: None,
         }
     }
+    pub fn skip_pwd(&mut self) {
+        self.password = String::new();
+    }
 }
 
 impl Default for User {

@@ -84,7 +84,7 @@ import {
 } from "../../../core";
 import { ref, reactive } from "vue";
 
-import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from "element-plus";
 import api from "../../../api";
 import {user as userPinia} from '../../../store/src/user'
 
@@ -151,7 +151,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       }else{
         const data = await api.user.signup(userForm);
         if(typeof data !== 'undefined'){
-          userStore.setUser(data);
+          ElMessageBox.confirm('Registration successful, do you want to log in directly?','Sign up Result',{
+            confirmButtonText: 'Signin Now',
+            cancelButtonText: 'Cancel',
+            type: 'success',
+          }).then(()=>{
+            userStore.setUser(data);
+            userStore.setSignIn();
+          })
         }
       }
     } else {

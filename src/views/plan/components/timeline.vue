@@ -36,17 +36,17 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
-import { ITODO, PriorityEnum, usePriorityColor, Status, useStatus } from "../../../core";
+import { Todo, Priorities, usePriorityColor, Status, useStatus } from "../../../core";
 import { TODOItem } from "../index";
-const props = defineProps<{ datas: ITODO[] }>();
+const props = defineProps<{ datas: Todo[] }>();
 
-const currentTodo = ref<ITODO>();
-const getPriorityDot = computed(() => (item: ITODO) => {
-  let { priority } = item || PriorityEnum.Low;
+const currentTodo = ref<Todo>();
+const getPriorityDot = computed(() => (item: Todo) => {
+  let { priority } = item || Priorities.Low;
   return `background-color : ${usePriorityColor(priority)}`;
 });
 
-const getStatusDot = computed(() => (item: ITODO) => {
+const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START;
   return `background-color : ${useStatus(status)}`;
 });

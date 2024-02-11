@@ -6,7 +6,7 @@ const initLocalStorage = () => {
   // init local storage
   // - todo-sigin-in : false
   // - todo-user: {}
-  window.localStorage.setItem('todo-sigin-in', toStore(false))
+  window.localStorage.setItem('todo-sign-in', toStore(false))
   window.localStorage.setItem('todo-user', toStore(new Object()))
 }
 

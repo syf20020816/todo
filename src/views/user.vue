@@ -5,15 +5,15 @@
       <img
         @click="avatarDrawer = true"
         id="userAvatar"
-        :src="userStore.useAvatar(userStore.userInfo.avatar)"
+        :src="userStore.useAvatar(userStore.user.avatar)"
         alt="Avatar"
       />
       <div :class="buildWrap('avatar', 'userInfo')">
         <div v-html="useSvg(SVGs.LOGO, 32)"></div>
         <div class="title">
-          Hello!{{ userStore.userInfo.name }} Wishing you a pleasant day
+          Hello!{{ userStore.user.name }} Wishing you a pleasant day
         </div>
-        <div class="email">Email:{{ userStore.userInfo.email }}</div>
+        <div class="email">Email:{{ userStore.user.email }}</div>
       </div>
     </div>
     <div :class="buildWrap(component, 'details')">
@@ -41,7 +41,7 @@
       <el-progress
         :percentage="
           parseFloat(
-            (1 - userStore.userInfo.todoNumber / userStore.userInfo.totalTodo).toFixed(2)
+            (1 - userStore.user.todoNumber / userStore.user.totalTodo).toFixed(2)
           ) * 100
         "
         :stroke-width="15"
@@ -91,7 +91,7 @@
         </div>
       </div>
       <div class="chooseInfo">
-        <div>Your Avatar : {{ userStore.userInfo.avatar }}</div>
+        <div>Your Avatar : {{ userStore.user.avatar }}</div>
         <div>Chosen : {{ chosenAvatar }}</div>
       </div>
       <div style="width: 100%">
@@ -106,14 +106,22 @@
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
 import { Coffee, Platform, WarningFilled } from "@element-plus/icons-vue";
-import { AvatarMap, Avatars, Teams, build, buildView, buildWrap, useTeam } from "../core";
+import {
+  AvatarMap,
+  Avatars,
+  TeamAvatars,
+  build,
+  buildView,
+  buildWrap,
+  useTeam,
+} from "../core";
 import { user } from "../store/src/user";
 import { SVGs, useSvg } from "../components";
 const avatarDrawer = ref(false);
 const component = "User";
 
 const userStore = user();
-const chosenAvatar = ref(userStore.userInfo.avatar);
+const chosenAvatar = ref(userStore.user.avatar);
 const busyValue = ref(3);
 const busyIcons = [Coffee, Platform, WarningFilled];
 
@@ -136,7 +144,7 @@ const chooseAvatar = (item: { label: Avatars; value: any }) => {
 
 /**修改用户头像 */
 const changeAvatar = () => {
-  userStore.userInfo.avatar = chosenAvatar.value;
+  userStore.user.avatar = chosenAvatar.value;
 };
 
 /**计算用户繁忙程度 */
@@ -152,47 +160,47 @@ const busyTemplate = computed(() => {
 
 /**用户信息列表 */
 const userInfoList = computed(() => {
-  let { userInfo } = userStore;
+  let { user } = userStore;
   return [
     {
       label: "UserName",
-      value: userInfo.username,
+      value: user.username,
     },
     {
       label: "Name",
-      value: userInfo.name,
+      value: user.name,
     },
     {
       label: "Email",
-      value: userInfo.email,
+      value: user.email,
     },
     {
       label: "Avatar",
-      value: userInfo.avatar,
+      value: user.avatar,
     },
     {
-      label: "Teams",
-      value: userInfo.teamNumber,
+      label: "TeamAvatars",
+      value: user.teamNumber,
     },
     {
       label: "Todos",
-      value: userInfo.todoNumber,
+      value: user.todoNumber,
     },
     {
       label: "TODO-fatal",
-      value: userInfo.todos.fatal.length,
+      value: user.todos?.fatal.length ?? 0,
     },
     {
       label: "TODO-mid",
-      value: userInfo.todos.mid.length,
+      value: user.todos?.mid.length ?? 0,
     },
     {
       label: "TODO-low",
-      value: userInfo.todos.low.length,
+      value: user.todos?.low.length ?? 0,
     },
     {
       label: "TODO-Focus",
-      value: userInfo.todos.focus.length,
+      value: user.todos?.focus.length ?? 0,
     },
   ];
 });
@@ -202,7 +210,7 @@ const teamList = reactive<
     id: string;
     name: string;
     role: string;
-    teamIcon: Teams;
+    teamIcon: TeamAvatars;
     description: string;
   }[]
 >([
@@ -210,21 +218,21 @@ const teamList = reactive<
     id: "0",
     name: "Surrealism",
     role: "Manager",
-    teamIcon: Teams.Team1,
+    teamIcon: TeamAvatars.Team1,
     description: "Surrealism is a SQL Builder",
   },
   {
     id: "1",
     name: "SurrealismUI",
     role: "Manager",
-    teamIcon: Teams.Team2,
+    teamIcon: TeamAvatars.Team2,
     description: "Surrealism is a SQL Builder",
   },
   {
     id: "2",
     name: "Slimk",
     role: "Watcher",
-    teamIcon: Teams.Team3,
+    teamIcon: TeamAvatars.Team3,
     description: "Surrealism is a SQL Builder",
   },
 ]);

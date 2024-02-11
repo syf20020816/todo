@@ -41,10 +41,10 @@ import Panel from "./components/panel.vue";
 import {
   AvatarMap,
   Avatars,
-  ITODO,
-  PriorityEnum,
+  Todo,
+  Priorities,
   Status,
-  Teams,
+  TeamAvatars,
   build,
   buildView,
   buildWrap,
@@ -59,7 +59,7 @@ const teamList = reactive<
     id: string;
     name: string;
     role: string;
-    teamIcon: Teams;
+    teamIcon: TeamAvatars;
     description: string;
   }[]
 >([
@@ -67,21 +67,21 @@ const teamList = reactive<
     id: "0",
     name: "Surrealism",
     role: "Manager",
-    teamIcon: Teams.Team1,
+    teamIcon: TeamAvatars.Team1,
     description: "Surrealism is a SQL Builder",
   },
   {
     id: "1",
     name: "SurrealismUI",
     role: "Manager",
-    teamIcon: Teams.Team2,
+    teamIcon: TeamAvatars.Team2,
     description: "Surrealism is a SQL Builder",
   },
   {
     id: "2",
     name: "Slimk",
     role: "Watcher",
-    teamIcon: Teams.Team3,
+    teamIcon: TeamAvatars.Team3,
     description: "Surrealism is a SQL Builder",
   },
 ]);

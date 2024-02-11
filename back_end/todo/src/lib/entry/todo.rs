@@ -6,7 +6,7 @@ use rocket::serde::{Deserialize, Serialize};
 pub struct Todo {
     id: String,
     name: String,
-    priority: Priority,
+    priority: Priorities,
     /// 审核人
     reviewers: Vec<User>,
     performers: Vec<User>,

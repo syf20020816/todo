@@ -27,7 +27,7 @@ export const TeamMap = new Map<TeamAvatars, any>([
 /**
  * 使用头像函数
  * 通过枚举得到映射结果
- * @param teamEnum Teams
+ * @param teamEnum TeamAvatars
  * @returns
  */
 export const useTeam = (teamEnum: TeamAvatars) => {

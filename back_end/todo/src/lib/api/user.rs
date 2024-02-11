@@ -11,7 +11,7 @@ use surreal_use::core::Stmt;
 use surrealdb::sql::{Array, Object, Operator, Output, Value};
 
 #[post("/user/signin", format = "application/json", data = "<user>")]
-pub async fn signin(user: Json<Signin>) -> ResultJsonData<bool> {
+pub async fn signin(user: Json<Signin>) -> ResultJsonData<User> {
     let username = user.0.username();
     let password = user.0.password();
 
@@ -28,7 +28,7 @@ pub async fn signin(user: Json<Signin>) -> ResultJsonData<bool> {
         .to_origin()
         .0;
 
-    // 结果: SELECT * FROM user WHERE username = 'matt000' AND password = 'matt000'
+    // 结果类似: SELECT * FROM user WHERE username = 'matt000' AND password = 'matt000'
     let sql = Stmt::select()
         .table("user".into())
         .field_all()
@@ -39,8 +39,17 @@ pub async fn signin(user: Json<Signin>) -> ResultJsonData<bool> {
                 .right(password_cond),
         )
         .to_string();
-
-    ResultJsonData::success(true)
+    let mut result = DB.query(sql).await.unwrap();
+    let signup_result: Vec<User> = result.take(0_usize).unwrap();
+    if signup_result.len() == 1 {
+        let mut res = signup_result[0].clone();
+        let _ = res.skip_pwd();
+        return ResultJsonData::success(res);
+    } else {
+        let e = Error::IdentityAuthentication;
+        let (e_code, e_msg) = e.get();
+        return ResultJsonData::define_failure(e_code, &e_msg);
+    }
 }
 
 #[post("/user/signup", format = "application/json", data = "<user>")]
@@ -76,11 +85,38 @@ pub async fn signup(user: Json<Signup>) -> ResultJsonData<User> {
             .to_string();
         let mut result = DB.query(signup_sql).await.unwrap();
         let signup_result: Vec<User> = result.take(0_usize).unwrap();
-        let res = signup_result[0].clone();
+        let mut res = signup_result[0].clone();
+        let _ = res.skip_pwd();
         return ResultJsonData::success(res);
     } else {
         let error = Error::ExistAccount;
         let (e_code, e_msg) = error.get();
+        return ResultJsonData::define_failure(e_code, &e_msg);
+    }
+}
+
+#[get("/user/info/<username>", format = "application/json")]
+pub async fn get_user_info(username: &str) -> ResultJsonData<User> {
+    let sql = Stmt::select()
+        .table("user".into())
+        .field_all()
+        .cond(
+            Cond::new()
+                .left_easy("username")
+                .op(Operator::Equal)
+                .right(username.into()),
+        )
+        .to_string();
+
+    let mut result = DB.query(sql).await.unwrap();
+    let signup_result: Vec<User> = result.take(0_usize).unwrap();
+    if signup_result.len() == 1 {
+        let mut res = signup_result[0].clone();
+        let _ = res.skip_pwd();
+        return ResultJsonData::success(res);
+    } else {
+        let e = Error::IdentityAuthentication;
+        let (e_code, e_msg) = e.get();
         return ResultJsonData::define_failure(e_code, &e_msg);
     }
 }

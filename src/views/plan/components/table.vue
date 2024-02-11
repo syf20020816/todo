@@ -73,10 +73,10 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
-import { ITODO } from "../../../core";
+import { Todo } from "../../../core";
 import { TODOItem } from "../index";
 const props = defineProps<{
-  datas: ITODO[];
+  datas: Todo[];
 }>();
 
 const search = ref("");

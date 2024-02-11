@@ -33,10 +33,10 @@ import { ref, reactive } from "vue";
 import {
   AvatarMap,
   Avatars,
-  ITODO,
-  PriorityEnum,
+  Todo,
+  Priorities,
   Status,
-  Teams,
+  TeamAvatars,
   build,
   buildView,
   buildWrap,
@@ -50,7 +50,7 @@ const getTODO = (data: any) => {
   console.log(data.day);
 };
 
-const currentItem = ref<ITODO>();
+const currentItem = ref<Todo>();
 
 const activities = [
   {

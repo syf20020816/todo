@@ -12,104 +12,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
-import {
-  AvatarMap,
-  Avatars,
-  ITODO,
-  PriorityEnum,
-  Status,
-  Teams,
-  build,
-  buildView,
-  buildWrap,
-  useTeam,
-} from "../core";
+import { reactive } from "vue";
+import { AvatarMap, TeamAvatars, build, buildView, buildWrap, useTeam } from "../core";
 import { Timeline } from "./plan";
+import { todos } from "./todos";
 const component = "Main";
-
-const todos = ref<ITODO[]>([
-  {
-    id: "001",
-    name: "Fix card display",
-    priority: PriorityEnum.Emergent,
-    reviewers: [
-      {
-        id: "1",
-        name: "Jany",
-        email: "Jany@gmail.com",
-        avatar: Avatars.Avatar1,
-      },
-    ],
-    performers: [
-      {
-        id: "2",
-        name: "Surrog",
-        email: "Surrog@gmail.com",
-        avatar: Avatars.Avatar2,
-      },
-    ],
-    date: {
-      start: "10.30",
-      end: "14.30",
-      during: 2,
-    },
-    tags: [
-      {
-        type: "info",
-        effect: "dark",
-        label: "Rust",
-      },
-      {
-        type: "success",
-        effect: "dark",
-        label: "CSS",
-      },
-    ],
-    status: Status.IN_PROGRESS,
-    description: "test",
-  },
-  {
-    id: "002",
-    name: "Fix card display2",
-    priority: PriorityEnum.Emergent,
-    reviewers: [
-      {
-        id: "1",
-        name: "Jany",
-        email: "Jany@gmail.com",
-        avatar: Avatars.Avatar1,
-      },
-    ],
-    performers: [
-      {
-        id: "2",
-        name: "Surrog",
-        email: "Surrog@gmail.com",
-        avatar: Avatars.Avatar2,
-      },
-    ],
-    date: {
-      start: "10.30",
-      end: "14.30",
-      during: 2,
-    },
-    tags: [
-      {
-        type: "info",
-        effect: "dark",
-        label: "Rust",
-      },
-      {
-        type: "success",
-        effect: "dark",
-        label: "CSS",
-      },
-    ],
-    status: Status.IN_PROGRESS,
-    description: "test",
-  },
-]);
 </script>
 
 <style lang="scss" scoped>

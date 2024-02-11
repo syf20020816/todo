@@ -49,8 +49,8 @@ import { ref, reactive, computed } from "vue";
 import { TODOItem } from "../index";
 import { CircleClose, QuestionFilled } from "@element-plus/icons-vue";
 import {
-  ITODO,
-  PriorityEnum,
+  Todo,
+  Priorities,
   Avatars,
   Status,
   usePriorityColor,
@@ -58,7 +58,7 @@ import {
   useStatus,
 } from "../../../core";
 const props = defineProps<{
-  datas: ITODO[];
+  datas: Todo[];
 }>();
 const date = new Date();
 
@@ -85,17 +85,17 @@ const infoList = reactive([
 
 const currentTodo = ref<any>();
 
-const getPriorityDot = computed(() => (item: ITODO) => {
-  let { priority } = item || PriorityEnum.Low;
+const getPriorityDot = computed(() => (item: Todo) => {
+  let { priority } = item || Priorities.Low;
   return `background-color : ${usePriorityColor(priority)}`;
 });
 
-const getStatusDot = computed(() => (item: ITODO) => {
+const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START;
   return `background-color : ${useStatus(status)}`;
 });
 
-const showTodoDetails = (item: ITODO) => {
+const showTodoDetails = (item: Todo) => {
   currentTodo.value = item;
 };
 </script>

@@ -62,11 +62,11 @@ import {
 } from "../../../core";
 import { ref, reactive } from "vue";
 import api from "../../../api";
-import { ElMessage } from "element-plus";
-
+import { ElMessage, ElMessageBox } from "element-plus";
+import { user as userPinia } from "../../../store/src/user";
 import type { FormInstance, FormRules } from "element-plus";
 const component = "Signin";
-
+const userStore = userPinia();
 const formSize = ref("default");
 const userFormRef = ref<FormInstance>();
 const userForm = reactive<UserLoginForm>({
@@ -93,6 +93,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       const data = await api.user.signin(userForm);
       console.log(data);
+      if (typeof data !== "undefined") {
+        ElMessage({
+          type: "success",
+          message: "Sign in successfully",
+        });
+        userStore.setUser(data);
+        userStore.setSignIn();
+      }
     } else {
       return;
     }

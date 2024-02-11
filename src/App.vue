@@ -16,16 +16,27 @@ import { user as userPinia } from "./store/src/user";
 import { init } from "./core";
 import { onMounted } from "vue";
 import Login from "./views/login/login.vue";
+import api from "./api";
 
 const userStore = userPinia();
 
 userStore.checkSetIsSignIn();
 
-const initApp = () => {
-  init();
+const initApp = async () => {
+  let username = userStore.getUsername();
+  if (typeof username !== "undefined") {
+    const data = await api.user.getUserInfo(username.toString());
+
+    if (typeof data !== "undefined") {
+      userStore.setUser(data);
+      userStore.setSignIn();
+    }
+  }
 };
 
-initApp();
+onMounted(() => {
+  initApp();
+});
 </script>
 
 <style lang="scss" scoped>
