@@ -4,20 +4,20 @@ use rocket::serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
-    id: String,
-    name: String,
-    priority: Priorities,
+    pub id: String,
+    pub name: String,
+    pub priority: Priorities,
     /// 审核人
-    reviewers: Vec<User>,
-    performers: Vec<User>,
-    date: Date,
-    tags: Vec<ITagProps>,
-    status: Status,
-    description: Option<String>,
-    information: Option<String>,
+    pub reviewers: Vec<String>,
+    pub performers: Vec<String>,
+    pub date: Date,
+    pub tags: Vec<ITagProps>,
+    pub status: Status,
+    pub description: Option<String>,
+    pub information: Option<String>,
     /// 附件
-    annexs: Option<Vec<Annex>>,
-    is_focus: bool,
+    pub annexs: Option<Vec<Annex>>,
+    pub is_focus: bool,
 }
 
 impl Default for Todo {

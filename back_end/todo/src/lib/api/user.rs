@@ -1,93 +1,41 @@
-use crate::lib;
-use crate::lib::db::{db_init, DB};
-use crate::lib::entry::User;
-use crate::lib::entry::{Signin, Signup};
+use crate::lib::entry::dto::User;
+use crate::lib::entry::dto::{Signin, Signup};
 use crate::lib::error::Error;
+use crate::lib::mapping::{
+    check_user_by_username, create_user, select_user_by_username, select_user_by_username_password,
+};
 use crate::lib::response::ResultJsonData;
 use rocket::serde::json::Json;
-use rocket::serde::{Deserialize, Serialize};
-use surreal_use::core::sql::{Cond, CreateData};
-use surreal_use::core::Stmt;
-use surrealdb::sql::{Array, Object, Operator, Output, Value};
 
 #[post("/user/signin", format = "application/json", data = "<user>")]
 pub async fn signin(user: Json<Signin>) -> ResultJsonData<User> {
     let username = user.0.username();
     let password = user.0.password();
 
-    let username_cond = Cond::new()
-        .left("username")
-        .op(Operator::Equal)
-        .right(username.into())
-        .to_origin()
-        .0;
-    let password_cond = Cond::new()
-        .left("password")
-        .op(Operator::Equal)
-        .right(password.into())
-        .to_origin()
-        .0;
-
-    // 结果类似: SELECT * FROM user WHERE username = 'matt000' AND password = 'matt000'
-    let sql = Stmt::select()
-        .table("user".into())
-        .field_all()
-        .cond(
-            Cond::new()
-                .left_value(username_cond)
-                .op(Operator::And)
-                .right(password_cond),
-        )
-        .to_string();
-    let mut result = DB.query(sql).await.unwrap();
-    let signup_result: Vec<User> = result.take(0_usize).unwrap();
-    if signup_result.len() == 1 {
-        let mut res = signup_result[0].clone();
-        let _ = res.skip_pwd();
-        return ResultJsonData::success(res);
-    } else {
-        let e = Error::IdentityAuthentication;
-        let (e_code, e_msg) = e.get();
-        return ResultJsonData::define_failure(e_code, &e_msg);
+    let query = select_user_by_username_password(username, password).await;
+    if let Some(mut user) = query {
+        let _ = user.skip_pwd();
+        return ResultJsonData::success(user);
     }
+    let e = Error::IdentityAuthentication;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
 }
 
 #[post("/user/signup", format = "application/json", data = "<user>")]
 pub async fn signup(user: Json<Signup>) -> ResultJsonData<User> {
     let user = user.0;
     let username = user.username();
-    // 检查是否已经有相同的用户名
-    let sql_check = Stmt::select()
-        .table("user".into())
-        .fields(vec!["username".into()])
-        .cond(
-            Cond::new()
-                .left_easy("username")
-                .op(Operator::Equal)
-                .right(username.into()),
-        )
-        .to_string();
-
-    #[derive(Serialize, Deserialize)]
-    #[serde(crate = "rocket::serde")]
-    struct TmpUser {
-        username: String,
-    }
-    let mut result = DB.query(sql_check).await.unwrap();
-    let check_result: Vec<TmpUser> = result.take(0_usize).unwrap();
-    if check_result.len().eq(&0_usize) {
+    let exist = check_user_by_username(username).await;
+    if exist {
         let user = User::quick_init(user.name(), user.username(), user.password(), user.email());
 
-        let signup_sql = Stmt::create()
-            .table("user".into())
-            .data(CreateData::content(user))
-            .output(Output::After)
-            .to_string();
-        let mut result = DB.query(signup_sql).await.unwrap();
-        let signup_result: Vec<User> = result.take(0_usize).unwrap();
-        let mut res = signup_result[0].clone();
-        let _ = res.skip_pwd();
-        return ResultJsonData::success(res);
+        let query = create_user(user).await;
+        if let Some(mut user) = query {
+            user.skip_pwd();
+            return ResultJsonData::success(user);
+        }
+        return ResultJsonData::failure("Server data error: api::signup");
     } else {
         let error = Error::ExistAccount;
         let (e_code, e_msg) = error.get();
@@ -97,26 +45,11 @@ pub async fn signup(user: Json<Signup>) -> ResultJsonData<User> {
 
 #[get("/user/info/<username>", format = "application/json")]
 pub async fn get_user_info(username: &str) -> ResultJsonData<User> {
-    let sql = Stmt::select()
-        .table("user".into())
-        .field_all()
-        .cond(
-            Cond::new()
-                .left_easy("username")
-                .op(Operator::Equal)
-                .right(username.into()),
-        )
-        .to_string();
-
-    let mut result = DB.query(sql).await.unwrap();
-    let signup_result: Vec<User> = result.take(0_usize).unwrap();
-    if signup_result.len() == 1 {
-        let mut res = signup_result[0].clone();
-        let _ = res.skip_pwd();
-        return ResultJsonData::success(res);
-    } else {
-        let e = Error::IdentityAuthentication;
-        let (e_code, e_msg) = e.get();
-        return ResultJsonData::define_failure(e_code, &e_msg);
+    let query = select_user_by_username(username).await;
+    if let Some(user) = query {
+        return ResultJsonData::success(user);
     }
+    let e = Error::IdentityAuthentication;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
 }

@@ -47,8 +47,12 @@ impl<T: Serialize> ResultJsonData<T> {
         ResultJsonData::new(200, data, "success")
     }
     //提供响应失败的快速构建方式
-    pub fn failure(data: T, msg: &str) -> Self {
-        ResultJsonData::new(500, data, msg)
+    pub fn failure(msg: &str) -> Self {
+        ResultJsonData {
+            code: 500,
+            data: None,
+            msg: String::from(msg),
+        }
     }
     pub fn define_failure(code: u16, msg: &str) -> Self {
         ResultJsonData {
