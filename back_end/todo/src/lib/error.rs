@@ -6,6 +6,8 @@ pub enum Error {
     /// 说明登录时的账号或密码错误
     IdentityAuthentication,
     ExistAccount,
+    ChangeUserSetting,
+    ChangeUserAvatar,
 }
 
 impl Error {
@@ -13,6 +15,8 @@ impl Error {
         match self {
             Error::IdentityAuthentication => (1001, self.to_string()),
             Error::ExistAccount => (1002, self.to_string()),
+            Error::ChangeUserSetting => (1003, self.to_string()),
+            Error::ChangeUserAvatar => (1004, self.to_string()),
         }
     }
 }
@@ -24,6 +28,8 @@ impl Display for Error {
                 "Identity Authentication Failed: Incorrect username or password"
             }
             Error::ExistAccount => "The current account already exists. Please change the username",
+            Error::ChangeUserSetting => "Failed to modify user configuration",
+            Error::ChangeUserAvatar => "Failed to modify user avatar",
         };
         f.write_str(alert_msg)
     }

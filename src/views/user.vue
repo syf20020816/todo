@@ -118,9 +118,11 @@ import {
   buildWrap,
   useTeam,
 } from "../core";
+import api from "../api";
 import { user } from "../store/src/user";
 import { SVGs, useSvg } from "../components";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
 
 const avatarDrawer = ref(false);
 const component = "User";
@@ -155,8 +157,20 @@ const chooseAvatar = (item: { label: Avatars; value: any }) => {
 };
 
 /**修改用户头像 */
-const changeAvatar = () => {
-  userStore.user.avatar = chosenAvatar.value;
+const changeAvatar = async () => {
+  let username = userStore.getUsername();
+  if (username) {
+    const data = await api.user.setUserAvatar(username, chosenAvatar.value);
+    data &&
+      (() => {
+        userStore.user.avatar = chosenAvatar.value;
+        ElMessage({
+          type: "success",
+          message: "Avatar changed successfully",
+        });
+      })();
+  }
+  avatarDrawer.value = false;
 };
 
 /**计算用户繁忙程度 */

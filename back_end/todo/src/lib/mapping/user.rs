@@ -1,11 +1,17 @@
 use rocket::serde::{Deserialize, Serialize};
 use surreal_use::core::{
-    sql::{Cond, CreateData},
+    sql::{Cond, CreateData, Field, SetField, UpdateData},
     Stmt,
 };
 use surrealdb::sql::{Operator, Output};
 
-use crate::lib::{db::DB, entry::dto::User};
+use crate::lib::{
+    db::DB,
+    entry::{
+        dto::{Avatars, User},
+        vo::UserPersonalSetting,
+    },
+};
 
 pub async fn select_user_by_username(username: &str) -> Option<User> {
     let sql = Stmt::select()
@@ -101,5 +107,63 @@ pub async fn select_user_by_username_password(username: &str, password: &str) ->
         Some(res)
     } else {
         None
+    }
+}
+
+pub async fn update_user_by_personal_settings(
+    user: UserPersonalSetting,
+    username: &str,
+) -> Option<User> {
+    let name = user.name();
+    let email = user.email();
+    let send_email = user.send_email();
+    let send_msg = user.send_msg();
+    let update_set = vec![
+        SetField::new("name", None, name),
+        SetField::new("email", None, email),
+        SetField::new("sendEmail", None, send_email),
+        SetField::new("sendMsg", None, send_msg),
+    ];
+
+    let sql = Stmt::update()
+        .table("user".into())
+        .data(UpdateData::Set(update_set))
+        .cond(
+            Cond::new()
+                .left_easy("username")
+                .op(Operator::Equal)
+                .right(username.into()),
+        )
+        .output(Output::After)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<User> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        let res = sql_result[0].clone();
+        Some(res)
+    } else {
+        None
+    }
+}
+
+pub async fn update_user_avatar(username: &str, avatar: Avatars) -> bool {
+    let avatar = avatar.to_string();
+    let sql = Stmt::update()
+        .table("user".into())
+        .data(UpdateData::set().push(SetField::new("avatar", None, avatar)))
+        .cond(
+            Cond::new()
+                .left_easy("username")
+                .op(Operator::Equal)
+                .right(username.into()),
+        )
+        .output(Output::After)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<User> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        return true;
+    } else {
+        return false;
     }
 }

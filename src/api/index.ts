@@ -6,12 +6,14 @@
  * ==============================
  */
 import { userLogin } from './src/defaultApi'
-import { signin, signup, getUserInfo } from './src/user'
+import { signin, signup, getUserInfo, setUserInfo, setUserAvatar } from './src/user'
 
 export default {
   user: {
     signin,
     signup,
-    getUserInfo
+    getUserInfo,
+    setUserInfo,
+    setUserAvatar
   }
 }

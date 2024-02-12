@@ -84,7 +84,7 @@
               </p>
             </el-alert>
             <el-form-item label="Name" prop="name">
-              <el-input v-model="ruleForm.name" />
+              <el-input v-model="userStore.user.name" />
             </el-form-item>
           </el-space>
           <el-space fill>
@@ -95,7 +95,7 @@
               </p>
             </el-alert>
             <el-form-item label="Email" prop="email">
-              <el-input v-model="ruleForm.email" />
+              <el-input v-model="userStore.user.email" />
             </el-form-item>
           </el-space>
           <el-space fill>
@@ -106,7 +106,7 @@
               </p>
             </el-alert>
             <el-form-item label="Send Email" prop="sendEmail">
-              <el-switch v-model="ruleForm.sendEmail" />
+              <el-switch v-model="userStore.user.sendEmail" />
             </el-form-item>
           </el-space>
           <el-space fill>
@@ -117,7 +117,7 @@
               </p>
             </el-alert>
             <el-form-item label="Send Message" prop="sendMessage">
-              <el-switch v-model="ruleForm.sendMessage" />
+              <el-switch v-model="userStore.user.sendMsg" />
             </el-form-item>
           </el-space>
           <el-form-item>
@@ -133,104 +133,119 @@
 </template>
 
 <script lang="ts" setup>
-import { Search } from "@element-plus/icons-vue";
-import { ref, reactive, defineComponent, computed } from "vue";
-import { buildView, buildWrap } from "../../core";
-import { SVGs, useSvg } from "../index";
-import { user } from "../../store/src/user";
-import type { FormInstance, FormRules } from "element-plus";
+import { Search } from '@element-plus/icons-vue'
+import { ref, reactive, defineComponent, computed } from 'vue'
+import { buildView, buildWrap, UserInfoChangeForm } from '../../core'
+import { SVGs, useSvg } from '../index'
+import { user } from '../../store/src/user'
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 
-import { InfoFilled } from "@element-plus/icons-vue";
+import { InfoFilled } from '@element-plus/icons-vue'
+import api from '../../api'
 
-const component = "Header";
+const component = 'Header'
 defineComponent({
-  name: component,
-});
+  name: component
+})
 
-const userStore = user();
-const searchValue = ref("");
-const settingDrawer = ref(false);
+const userStore = user()
+const searchValue = ref('')
+const settingDrawer = ref(false)
 
 /**
  * 计算得出用户头像
  */
 const userAvatar = computed(() => {
-  return userStore.useAvatar(userStore.user.avatar);
-});
+  return userStore.useAvatar(userStore.user.avatar)
+})
 
 /**
  * 查询待办项事件
  */
 const onSearch = () => {
   //去除字符串前后空格
-  const formatSearchValue = searchValue.value.trim();
-  console.log(formatSearchValue);
-};
-
-const openSetting = () => {
-  settingDrawer.value = true;
-};
-
-const handleClose = () => {
-  settingDrawer.value = false;
-};
-
-interface RuleForm {
-  name: string;
-  email: string;
-  sendEmail: boolean;
-  sendMessage: boolean;
+  const formatSearchValue = searchValue.value.trim()
+  console.log(formatSearchValue)
 }
 
-const formSize = ref("default");
-const ruleFormRef = ref<FormInstance>();
-const ruleForm = reactive<RuleForm>({
-  name: "Hello",
-  email: "",
-  sendEmail: false,
-  sendMessage: false,
-});
+const openSetting = () => {
+  settingDrawer.value = true
+}
 
-const rules = reactive<FormRules<RuleForm>>({
+const handleClose = () => {
+  settingDrawer.value = false
+}
+
+const formSize = ref('default')
+const ruleFormRef = ref<FormInstance>()
+const ruleForm = reactive<UserInfoChangeForm>({
+  name: userStore.user.name,
+  email: userStore.user.email,
+  sendEmail: userStore.user.sendEmail,
+  sendMsg: userStore.user.sendMsg
+})
+
+const rules = reactive<FormRules<UserInfoChangeForm>>({
   name: [
-    { required: true, message: "Please input Activity name", trigger: "blur" },
-    { min: 3, max: 5, message: "Length should be 3 to 5", trigger: "blur" },
+    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
   ],
   email: [
     {
       required: true,
-      message: "Please input email address",
-      trigger: "blur",
+      message: 'Please input email address',
+      trigger: 'blur'
     },
     {
-      type: "email",
-      message: "Please input correct email address",
-      trigger: ["blur", "change"],
-    },
-  ],
-});
+      type: 'email',
+      message: 'Please input correct email address',
+      trigger: ['blur', 'change']
+    }
+  ]
+})
 
 const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  await formEl.validate((valid, fields) => {
+  if (!formEl) return
+  await formEl.validate(async (valid, _fields) => {
     if (valid) {
-      console.log("submit!");
+      let username = userStore.getUsername()
+      if (username) {
+        let form = {
+          name: userStore.user.name,
+  email: userStore.user.email,
+  sendEmail: userStore.user.sendEmail,
+  sendMsg: userStore.user.sendMsg
+        }
+        const data = await api.user.setUserInfo(username,form )
+        if (typeof data !== 'undefined') {
+          ElMessage({
+            type: 'success',
+            message: 'Configuration modification successful'
+          })
+          userStore.setUser(data)
+        }
+      }
     } else {
-      console.log("error submit!", fields);
+      ElMessage({
+        type: 'error',
+        message: 'Save failed, please try again'
+      })
     }
-  });
-};
+  })
+  // close
+  settingDrawer.value = false
+}
 
 const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
-};
+  if (!formEl) return
+  formEl.resetFields()
+}
 
 const Logout = () => {
   // 1.清理缓存
   // 2.清理用户信息
-  userStore.logout();
-};
+  userStore.logout()
+}
 </script>
 
 <style lang="scss" scoped>

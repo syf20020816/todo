@@ -6,7 +6,7 @@
  * - 等
  */
 import { Request } from '../axios/index'
-import { User, UserLoginForm } from '../../core'
+import { User, UserLoginForm, UserInfoChangeForm, Avatars } from '../../core'
 import type { ApiResponse } from './type'
 
 const request = Request.init()
@@ -23,5 +23,15 @@ export const signup = async (params: UserLoginForm): Promise<ApiResponse<User>> 
 
 export const getUserInfo = async (username: string): Promise<ApiResponse<User>> => {
   const { data } = await request.get('/user/info/' + username)
+  return data
+}
+
+export const setUserInfo = async (username: string, params: UserInfoChangeForm): Promise<ApiResponse<User>> => {
+  const { data } = await request.post('/user/info/' + username, params)
+  return data
+}
+
+export const setUserAvatar = async (username: string, avatar: Avatars): Promise<boolean> => {
+  const { data } = await request.get('/user/info/' + username + '/' + avatar)
   return data
 }

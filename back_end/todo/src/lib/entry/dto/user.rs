@@ -24,6 +24,12 @@ pub struct User {
     total_todo: u16,
     todos: TodoBox,
     teams: Option<Vec<Team>>,
+    #[serde(rename(serialize = "sendEmail"))]
+    #[serde(rename(deserialize = "sendEmail"))]
+    send_email: bool,
+    #[serde(rename(serialize = "sendMsg"))]
+    #[serde(rename(deserialize = "sendMsg"))]
+    send_msg: bool,
 }
 
 impl User {
@@ -42,6 +48,8 @@ impl User {
             total_todo: 0,
             todos: TodoBox::default(),
             teams: None,
+            send_email: false,
+            send_msg: true,
         }
     }
     pub fn skip_pwd(&mut self) {
@@ -62,6 +70,8 @@ impl Default for User {
             total_todo: 0,
             todos: Default::default(),
             teams: None,
+            send_email: false,
+            send_msg: true,
         }
     }
 }
