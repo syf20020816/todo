@@ -5,7 +5,7 @@
  * 2. 若使用此方式（axios-api模块化）请注释掉main.js中案例提供的默认$http的全局axios
  * ==============================
  */
-import { userLogin } from './src/defaultApi'
+import { addNewTodo } from './src/todo'
 import { signin, signup, getUserInfo, setUserInfo, setUserAvatar } from './src/user'
 
 export default {
@@ -15,5 +15,8 @@ export default {
     getUserInfo,
     setUserInfo,
     setUserAvatar
+  },
+  todo: {
+    addNewTodo
   }
 }

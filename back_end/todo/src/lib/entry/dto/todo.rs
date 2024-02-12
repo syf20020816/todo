@@ -4,7 +4,6 @@ use rocket::serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
-    pub id: String,
     pub name: String,
     pub priority: Priorities,
     /// 审核人
@@ -17,13 +16,14 @@ pub struct Todo {
     pub information: Option<String>,
     /// 附件
     pub annexs: Option<Vec<Annex>>,
+    #[serde(rename(serialize = "isFocus"))]
+    #[serde(rename(deserialize = "isFocus"))]
     pub is_focus: bool,
 }
 
 impl Default for Todo {
     fn default() -> Self {
         Self {
-            id: Default::default(),
             name: Default::default(),
             priority: Default::default(),
             reviewers: Default::default(),

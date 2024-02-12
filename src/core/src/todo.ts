@@ -6,11 +6,30 @@ import { User } from './user'
 
 /**优先级等级枚举 */
 export enum Priorities {
-  Emergent = 'emergent',
-  High = 'high',
-  Mid = 'mid',
-  Low = 'low'
+  Emergent = 'Emergent',
+  High = 'High',
+  Mid = 'Mid',
+  Low = 'Low'
 }
+
+export const priorityOptions = [
+  {
+    value: Priorities.Low,
+    label: Priorities.Low
+  },
+  {
+    value: Priorities.Mid,
+    label: Priorities.Mid
+  },
+  {
+    value: Priorities.High,
+    label: Priorities.High
+  },
+  {
+    value: Priorities.Emergent,
+    label: Priorities.Emergent
+  }
+]
 
 /**优先级 */
 export type Priority = {
@@ -67,14 +86,51 @@ export const useStatus = (status: Status): string => {
   return StatusTypeMap.get(status) || '#ADAC9A'
 }
 
-type ITagProps = {
+export type ITagProps = {
   type: 'info' | 'success' | 'warning' | '' | 'danger'
   effect: 'dark' | 'light' | 'plain'
   label: string
 }
 
+export const effectOptions = [
+  {
+    label: 'dark',
+    value: 'dark'
+  },
+  {
+    label: 'light',
+    value: 'light'
+  },
+  {
+    label: 'plain',
+    value: 'plain'
+  }
+]
+
+export const typeOptions = [
+  {
+    label: 'default',
+    value: ''
+  },
+  {
+    label: 'info',
+    value: 'info'
+  },
+  {
+    label: 'success',
+    value: 'success'
+  },
+  {
+    label: 'warning',
+    value: 'warning'
+  },
+  {
+    label: 'danger',
+    value: 'danger'
+  }
+]
+
 export type Todo = {
-  id: string
   name: string
   priority: Priorities
   /// 审核人
@@ -87,7 +143,7 @@ export type Todo = {
   information: Option<String>
   /// 附件
   annexs: Option<Array<Annex>>
-  is_focus: boolean
+  isFocus: boolean
 }
 
 export type TodoBox = {

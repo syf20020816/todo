@@ -17,13 +17,15 @@ pub struct Todo {
     information: Option<String>,
     /// 附件
     annexs: Option<Vec<Annex>>,
+    #[serde(rename(serialize = "isFocus"))]
+    #[serde(rename(deserialize = "isFocus"))]
     is_focus: bool,
 }
 
 impl From<dto::Todo> for Todo {
     fn from(value: dto::Todo) -> Self {
         Todo {
-            id: value.id,
+            id: String::new(),
             name: value.name,
             priority: value.priority,
             reviewers: Vec::new(),
