@@ -131,6 +131,7 @@ export const typeOptions = [
 ]
 
 export type Todo = {
+  id?: string
   owner: string
   name: string
   priority: Priorities
@@ -140,10 +141,15 @@ export type Todo = {
   date: IDate
   tags: Array<ITagProps>
   status: Status
-  description: Option<String>
-  information: Option<String>
+  description: Option<string>
+  information: Option<string>
   /// 附件
-  annexs: Option<Array<string>>
+  annexs: Option<
+    Array<{
+      name: string
+      data: string
+    }>
+  >
   isFocus: boolean
 }
 

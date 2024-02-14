@@ -15,6 +15,7 @@ use super::User;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
+    id: String,
     name: String,
     priority: Priorities,
     /// 审核人
@@ -26,7 +27,7 @@ pub struct Todo {
     description: Option<String>,
     information: Option<String>,
     /// 附件
-    annexs: Option<Vec<String>>,
+    annexs: Option<Vec<Annex>>,
     #[serde(rename(serialize = "isFocus"))]
     #[serde(rename(deserialize = "isFocus"))]
     is_focus: bool,
@@ -48,7 +49,7 @@ impl Todo {
     pub fn priority(&self) -> Priorities {
         self.priority.clone()
     }
-    pub async fn from(value: dto::Todo) -> Self {
+    pub async fn from(value: dto::Todo, id: String) -> Self {
         let reviewers = value.reviewers;
         let performers = value.performers;
         let reviewers = convert_usernames_to_user_instances(reviewers).await;
@@ -64,6 +65,7 @@ impl Todo {
             .map(|item| User::easy_from(item))
             .collect::<Vec<User>>();
         Todo {
+            id,
             name: value.name,
             priority: value.priority,
             reviewers,
@@ -119,7 +121,6 @@ impl TodoBox {
         };
     }
     pub async fn from(value: dto::TodoBox) -> Self {
-        dbg!(&value);
         let dto::TodoBox {
             low,
             mid,
@@ -188,13 +189,11 @@ pub async fn convert_ids_to_todo_instances(ids: Vec<String>) -> Vec<Todo> {
     let mut res = Vec::new();
     for id in ids {
         let query = select_todo_record(id.as_str()).await;
-        dbg!(&query);
-        if let Some((_id, todo)) = query {
-            let todo = Todo::from(todo).await;
+        if let Some((id, todo)) = query {
+            let todo = Todo::from(todo, id).await;
             dbg!(&todo);
             res.push(todo);
         }
     }
-    dbg!(&res);
     res
 }

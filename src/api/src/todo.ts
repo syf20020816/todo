@@ -18,3 +18,8 @@ export const addNewTodo = async (todo: Todo): Promise<ApiResponse<User>> => {
   const { data } = await request.post('/todo/create', todo)
   return data
 }
+
+export const deleteTodo = async (username: string, id: string): Promise<ApiResponse<User>> => {
+  const { data } = await request.delete('/todo/' + username + '/' + id)
+  return data
+}

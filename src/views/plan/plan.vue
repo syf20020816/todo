@@ -9,7 +9,7 @@
           </span>
         </template>
         <div class="c_p_wrapper">
-          <CreatePreview :datas="todos"></CreatePreview>
+          <CreatePreview :datas="userStore.todos"></CreatePreview>
         </div>
       </el-tab-pane>
       <el-tab-pane>
@@ -20,7 +20,7 @@
           </span>
         </template>
         <div class="calendar_wrapper">
-          <Calendar :datas="todos"></Calendar>
+          <Calendar :datas="userStore.todos"></Calendar>
         </div>
       </el-tab-pane>
       <el-tab-pane>
@@ -31,7 +31,7 @@
           </span>
         </template>
         <div class="timeline_wrapper">
-          <Timeline :datas="todos"></Timeline>
+          <Timeline :datas="userStore.todos"></Timeline>
         </div>
       </el-tab-pane>
       <el-tab-pane>
@@ -42,7 +42,7 @@
           </span>
         </template>
         <div class="table_wrapper">
-          <Table :datas="todos"></Table>
+          <Table :datas="userStore.todos"></Table>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -54,8 +54,9 @@ import { ref, reactive } from "vue";
 import { Avatars, buildView, Priorities, Status, Todo } from "../../core";
 import { SVGs, useSvg } from "../../components";
 import { CreatePreview, Calendar, Timeline, Table } from "./index";
+import { user as userPinia } from "../../store/src/user";
 const component = "Plan";
-const todos = ref<Todo[]>([]);
+const userStore = userPinia();
 </script>
 
 <style lang="scss">

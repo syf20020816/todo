@@ -9,7 +9,8 @@ export const user = defineStore('user', {
     return {
       user: {} as User,
       isSignIn: false,
-      todoList: [] as { label: string; value: number | string }[]
+      todoInfoList: [] as { label: string; value: number | string }[],
+      todos: [] as Todo[]
     }
   },
   actions: {
@@ -61,7 +62,7 @@ export const user = defineStore('user', {
       }
       const totalToday = countIsToday(low) + countIsToday(mid) + countIsToday(fatal)
 
-      this.todoList = [
+      this.todoInfoList = [
         {
           label: 'TODOs for today',
           value: totalToday
@@ -79,6 +80,8 @@ export const user = defineStore('user', {
           value: low.length + mid.length + fatal.length
         }
       ]
+
+      this.todos = [...low, ...mid, ...fatal]
     }
   }
 })

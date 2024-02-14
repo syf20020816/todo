@@ -5,7 +5,9 @@
         <span class="priority" :style="getPriorityDot(currentTodo)"></span>
       </span>
       <div class="todo-name">{{ currentTodo.name }}</div>
-      <el-button type="success">✅complete</el-button>
+      <el-button type="success" @click="completeTodo">✅complete</el-button>
+      <el-button type="warning" @click="changeTodo">change</el-button>
+      <el-button type="danger" @click="deleteTodo">❌discard</el-button>
     </div>
     <div class="details">
       <div class="left">
@@ -17,6 +19,7 @@
             :type="tag.type"
             size="small"
             class="mx-tag"
+            round
             :effect="tag.effect"
           >
             {{ tag.label }}
@@ -26,8 +29,8 @@
           <div style="text-align: left">Reviews:</div>
           <div
             class="review-item"
-            v-for="review in currentTodo.reviewers"
-            :key="review.id"
+            v-for="(review, index) in currentTodo.reviewers"
+            :key="index"
           >
             <img class="review-avatar" :src="useAvatar(review.avatar)" alt="" />
             <div class="review-info">
@@ -40,13 +43,13 @@
           <div style="text-align: left">Performers:</div>
           <div
             class="review-item"
-            v-for="review in currentTodo.performers"
-            :key="review.id"
+            v-for="(performer, index) in currentTodo.performers"
+            :key="index"
           >
-            <img class="review-avatar" :src="useAvatar(review.avatar)" alt="" />
+            <img class="review-avatar" :src="useAvatar(performer.avatar)" alt="" />
             <div class="review-info">
-              <div class="name">{{ review.name }}</div>
-              <div class="email">{{ review.email }}</div>
+              <div class="name">{{ performer.name }}</div>
+              <div class="email">{{ performer.email }}</div>
             </div>
           </div>
         </div>
@@ -54,9 +57,11 @@
       <div class="right">
         <div class="date">
           <div style="text-align: left">
-            DateTime:{{ currentTodo.date.start }} ~ {{ currentTodo.date.end }}
+            DateTime : {{ currentTodo.date.start }} ~ {{ currentTodo.date.end }}
           </div>
-          <div style="text-align: right">During : {{ currentTodo.date.during }}</div>
+          <div style="text-align: right">
+            During : {{ countDuring(currentTodo.date.during) }}
+          </div>
         </div>
         <div class="status">
           <span style="margin-right: 6px">Status :</span>
@@ -75,7 +80,12 @@
         </div>
         <div class="more">
           <span>Annex and Details :</span>
-          <el-button type="default">Download</el-button>
+          <el-button
+            type="default"
+            v-if="currentTodo.annexs?.length !== 0"
+            @click="downloadAnnexs"
+            >Download</el-button
+          >
         </div>
       </div>
     </div>
@@ -90,16 +100,52 @@ import {
   usePriorityColor,
   useAvatar,
   useStatus,
+  downloadBlob,
+  base64ToBlob,
 } from "../../../core";
+import api from "../../../api";
+import { ElMessage } from "element-plus";
+import { user as userPinia } from "../../../store/src/user";
 
 const props = defineProps<{
   currentTodo?: Todo;
 }>();
+const userStore = userPinia();
+const emits = defineEmits(["change", "delete"]);
 
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low;
   return `background-color : ${usePriorityColor(priority)}`;
 });
+
+const countDuring = (timestamp: number): string => {
+  return `${timestamp / 1000 / 60 / 60} h`;
+};
+
+const downloadAnnexs = () => {
+  props.currentTodo?.annexs?.forEach((annex) => {
+    let contentType = annex.data.split(";base64,")[0].replace("data:", "");
+    let blob = base64ToBlob(annex.data, contentType);
+    downloadBlob(blob, annex.name);
+  });
+};
+
+const completeTodo = () => {};
+const changeTodo = () => {
+  emits("change", props.currentTodo);
+};
+const deleteTodo = async () => {
+  let id = props.currentTodo!.id!;
+  const data = await api.todo.deleteTodo(userStore.user.username, id);
+  if (typeof data !== "undefined") {
+    ElMessage({
+      type: "success",
+      message: "Delete Todo successfully",
+    });
+    userStore.setUser(data);
+  }
+  emits("delete");
+};
 </script>
 
 <style lang="scss" scoped>
@@ -125,6 +171,7 @@ const getPriorityDot = computed(() => (item: Todo) => {
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-right: 8px;
       .priority {
         display: inline-block;
         height: 12px;
@@ -225,7 +272,7 @@ const getPriorityDot = computed(() => (item: Todo) => {
         box-sizing: border-box;
         padding-top: 6px;
         overflow: hidden;
-        height: calc(100% - 120px);
+        height: calc(100% - 150px);
         text-align: left;
         p {
           margin: 6px;

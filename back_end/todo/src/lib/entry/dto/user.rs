@@ -71,6 +71,11 @@ impl User {
             Priorities::Low => self.todos.low.push(todo_id),
         };
     }
+    pub fn delete_todo(&mut self, id: &str) {
+        self.todo_number -= 1;
+        self.total_todo -= 1;
+        self.todos.remove(id);
+    }
 }
 
 impl Default for User {

@@ -14,12 +14,12 @@
           <div>{{ getPerformersName(row, $index) }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="Date" prop="date" width="200px">
+      <el-table-column label="Date" prop="date" width="360px">
         <template #default="{ row, $index }">
           <div>{{ getDate(row, $index) }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="Tags" prop="tags" width="200px">
+      <el-table-column label="Tags" prop="tags" width="240px">
         <template #default="{ row, $index }">
           <span>
             <el-tag
@@ -29,6 +29,7 @@
               :type="tag.type"
               size="small"
               class="mx-tag"
+              round
               :effect="tag.effect"
               >{{ tag.label }}</el-tag
             >
@@ -37,7 +38,7 @@
       </el-table-column>
       <el-table-column align="right" width="200px" fixed="right">
         <template #header>
-          <el-input v-model="search" size="small" placeholder="Type to search" />
+          <span>Operation</span>
         </template>
         <template #default="scope">
           <el-button size="small" @click="handleEdit(scope.$index, scope.row)"

@@ -36,16 +36,26 @@ pub async fn select_todo_record(id: &str) -> Option<(String, Todo)> {
         .table(("todo", id).into())
         .field_all()
         .to_string();
-    dbg!(&sql);
-    //没有执行
     let mut result = DB.query(sql).await.unwrap();
-    dbg!(&result);
     let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();
-    dbg!(&sql_result);
     if sql_result.len() == 1 {
         let res = sql_result[0].clone();
         Some(res.to_record())
     } else {
         None
+    }
+}
+
+pub async fn delete_todo_by_id(id: &str) -> bool {
+    let sql = Stmt::delete()
+        .table(("todo", id).into())
+        .output(Output::Before)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        true
+    } else {
+        false
     }
 }

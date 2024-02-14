@@ -16,7 +16,7 @@ pub struct Todo {
     pub description: Option<String>,
     pub information: Option<String>,
     /// 附件
-    pub annexs: Option<Vec<String>>,
+    pub annexs: Option<Vec<Annex>>,
     #[serde(rename(serialize = "isFocus"))]
     #[serde(rename(deserialize = "isFocus"))]
     pub is_focus: bool,
@@ -82,5 +82,22 @@ impl Default for TodoBox {
             focus: Default::default(),
             history: Default::default(),
         }
+    }
+}
+
+impl TodoBox {
+    pub fn remove(&mut self, id: &str) {
+        let TodoBox {
+            low,
+            mid,
+            fatal,
+            focus,
+            history,
+        } = self;
+
+        self.low = low.clone().into_iter().filter(|x| x.ne(id)).collect();
+        self.mid = mid.clone().into_iter().filter(|x| x.ne(id)).collect();
+        self.fatal = fatal.clone().into_iter().filter(|x| x.ne(id)).collect();
+        self.focus = focus.clone().into_iter().filter(|x| x.ne(id)).collect();
     }
 }

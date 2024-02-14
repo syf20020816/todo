@@ -7,7 +7,7 @@ use crate::lib::{
     },
     error::Error,
     mapping::{
-        create_todo_by_username, select_todo_record, select_user_by_username,
+        create_todo_by_username, delete_todo_by_id, select_todo_record, select_user_by_username,
         update_user_by_username,
     },
     response::ResultJsonData,
@@ -36,6 +36,25 @@ pub async fn create_todo(todo: Json<Todo>) -> ResultJsonData<vo::User> {
         }
     }
     let e = Error::CreateTodo;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
+}
+
+#[delete("/<username>/<id>")]
+pub async fn delete_todo(username: &str, id: &str) -> ResultJsonData<vo::User> {
+    let query = delete_todo_by_id(id).await;
+    if query {
+        let user_query = select_user_by_username(username).await;
+        if let Some(mut user) = user_query {
+            let _ = user.delete_todo(id);
+            let update_query = update_user_by_username(user).await;
+            if let Some(user) = update_query {
+                let user = vo::User::from(user).await;
+                return ResultJsonData::success(user);
+            }
+        }
+    }
+    let e = Error::DeleteTodo;
     let (e_code, e_msg) = e.get();
     return ResultJsonData::define_failure(e_code, &e_msg);
 }

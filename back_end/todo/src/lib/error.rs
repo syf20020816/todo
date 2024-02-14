@@ -10,6 +10,7 @@ pub enum Error {
     ChangeUserAvatar,
     UpdateUser,
     CreateTodo,
+    DeleteTodo,
 }
 
 impl Error {
@@ -21,6 +22,7 @@ impl Error {
             Error::ChangeUserAvatar => (1004, self.to_string()),
             Error::UpdateUser => (1005, self.to_string()),
             Error::CreateTodo => (1101, self.to_string()),
+            Error::DeleteTodo => (1102, self.to_string()),
         }
     }
 }
@@ -36,6 +38,7 @@ impl Display for Error {
             Error::ChangeUserAvatar => "Failed to modify user avatar",
             Error::UpdateUser => "Update user data failed",
             Error::CreateTodo => "Create a new todo failed",
+            Error::DeleteTodo => "Delete todo failed",
         };
         f.write_str(alert_msg)
     }

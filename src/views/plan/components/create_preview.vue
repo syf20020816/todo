@@ -6,7 +6,11 @@
         <span>{{ week[date.getDay()] }}</span>
       </div>
       <div class="info_wrapper">
-        <div class="info_item" v-for="(item, index) in userStore.todoList" :key="index">
+        <div
+          class="info_item"
+          v-for="(item, index) in userStore.todoInfoList"
+          :key="index"
+        >
           <div class="title">{{ item.label }}</div>
           <div class="value">{{ item.value }}</div>
         </div>
@@ -17,7 +21,11 @@
         <el-button type="success">Complete All TODOs</el-button>
       </div>
       <div class="todo_wrapper">
-        <TODOItem :current-todo="currentTodo"></TODOItem>
+        <TODOItem
+          :current-todo="currentTodo"
+          @change="changeTodo"
+          @delete="deleteTodo"
+        ></TODOItem>
       </div>
     </div>
     <div class="preview_wrapper">
@@ -42,7 +50,7 @@
       </div>
     </div>
   </div>
-  <el-dialog v-model="addTodoVisible" title="Add New Todo" width="680">
+  <el-dialog v-model="addTodoVisible" :title="dialogTitle" width="680">
     <div>
       <el-form
         ref="todoFormRef"
@@ -173,6 +181,17 @@
             >
             <template #tip>
               <div class="el-upload__tip">file size 10MB</div>
+              <div v-if="isChange">
+                <div>Annexs have been uploaded</div>
+                <el-tag
+                  closable
+                  effect="plain"
+                  type="info"
+                  v-for="item in todoForm.annexs"
+                  :key="item.name"
+                  >{{ item.name }}</el-tag
+                >
+              </div>
             </template>
           </el-upload>
         </el-form-item>
@@ -181,7 +200,9 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="addTodoVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="addNewTodo(todoFormRef)"> Add </el-button>
+        <el-button type="primary" @click="addNewTodo(todoFormRef)">
+          {{ dialogBtn }}
+        </el-button>
       </div>
     </template>
   </el-dialog>
@@ -206,30 +227,13 @@ const todoFormRef = ref<FormInstance>()
 const addTagVisible = ref(false)
 const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const uploadRef = ref<UploadInstance>()
-
+const isChange = ref(false)
 const todoTag = ref<ITagProps>({
   type: '',
   effect: 'dark',
   label: ''
 })
-const infoList = reactive([
-  {
-    label: 'TODOs for today',
-    value: 3
-  },
-  {
-    label: 'Emergent TODOs',
-    value: 1
-  },
-  {
-    label: 'Normal TODOs',
-    value: 2
-  },
-  {
-    label: 'Start ~ End',
-    value: '10.30 ~ 16.00'
-  }
-])
+
 const fileList = ref<UploadUserFile[]>([])
 
 const currentTodo = ref<any>()
@@ -242,6 +246,19 @@ const getPriorityDot = computed(() => (item: Todo) => {
 const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START
   return `background-color : ${useStatus(status)}`
+})
+const dialogTitle = computed(()=>{
+  if(isChange.value){
+    return "Change Todo"
+  }
+  return "Add New Todo"
+})
+
+const dialogBtn = computed(()=>{
+  if(isChange.value){
+    return "Change"
+  }
+  return "Add"
 })
 
 const showTodoDetails = (item: Todo) => {
@@ -285,7 +302,10 @@ interface TodoRuleForm {
   tags: Array<ITagProps>
   description: string
   information: string
-  annexs: Array<string>
+  annexs: Array<{
+    name:string,
+    data:string
+  }>
   isFocus: boolean
 }
 
@@ -328,7 +348,7 @@ const checkDate = () => {
 const convertTodo = (): Todo => {
   let during = todoForm.date[1].getTime() - todoForm.date[0].getTime()
   let currentTime = new Date().getTime() - todoForm.date[0].getTime()
-  let status = currentTime > 0 ? Status.NOT_START : Status.IN_PROGRESS
+  let status = currentTime < 0 ? Status.NOT_START : Status.IN_PROGRESS
   let { username } = userStore.user
   let todo: Todo = {
     owner: username,
@@ -350,10 +370,12 @@ const convertTodo = (): Todo => {
     annexs: toRaw(todoForm.annexs),
     isFocus: todoForm.isFocus
   }
+  todoForm.annexs = []
   return todo
 }
 
 const addNewTodo = async (formEl: FormInstance | undefined) => {
+  isChange.value = false
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
     if (valid) {
@@ -380,7 +402,10 @@ const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFile
   let file = uploadFile.raw
   if (typeof file !== 'undefined') {
     convertFileToBase64(file).then(base64 => {
-      todoForm.annexs.push(base64)
+      todoForm.annexs.push({
+        name:uploadFile.name,
+        data:base64
+      })
     })
   }
 }
@@ -428,6 +453,24 @@ const addTag = () => {
 const removeTag = (tag: ITagProps) => {
   todoForm.tags = todoForm.tags.filter(item => item !== tag)
 }
+
+
+const changeTodo = (todo:Todo)=>{
+  todoForm.name = todo.name;
+  todoForm.description = todo.description??"";
+  todoForm.tags = todo.tags;
+  todoForm.information = todo.information??"";
+  todoForm.date = [new Date(todo.date.start),new Date(todo.date.end)];
+  todoForm.isFocus = todo.isFocus;
+  todoForm.priority = todo.priority;
+  todoForm.annexs = todo.annexs?? []
+  addTodoVisible.value = true;
+  isChange.value = true;
+}
+
+const deleteTodo = () => {
+  currentTodo.value = {}
+}
 </script>
 
 <style lang="scss" scoped>
@@ -440,8 +483,7 @@ const removeTag = (tag: ITagProps) => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  overflow-y: scroll;
-  scrollbar-width: thin;
+
   .create_wrapper {
     width: 65%;
     .date_wrapper {
@@ -485,7 +527,7 @@ const removeTag = (tag: ITagProps) => {
       justify-content: flex-end;
     }
     .todo_wrapper {
-      height: 460px;
+      height: 432px;
       width: 100%;
       display: flex;
       align-items: center;
@@ -504,6 +546,8 @@ const removeTag = (tag: ITagProps) => {
     justify-content: center;
     flex-wrap: wrap;
     align-content: flex-start;
+    overflow-y: scroll;
+    scrollbar-width: thin;
     .todo-item {
       margin-bottom: 6px;
       height: 60px;
