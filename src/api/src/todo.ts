@@ -8,12 +8,13 @@
  * 5. 在api.ts中引入进行统一管理
  * ========================================
  */
-import { Todo } from '../../core'
+import { Todo, User } from '../../core'
 import { Request } from '../axios/index'
+import { ApiResponse } from './type'
 
 const request = Request.init()
 
-export const addNewTodo = async (username: string, todo: Todo): Promise<boolean> => {
-  const { data } = await request.post('/todo/' + username, todo)
+export const addNewTodo = async (todo: Todo): Promise<ApiResponse<User>> => {
+  const { data } = await request.post('/todo/create', todo)
   return data
 }

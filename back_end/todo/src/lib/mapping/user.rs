@@ -1,10 +1,6 @@
-use rocket::serde::{Deserialize, Serialize};
-use surreal_use::core::{
-    sql::{Cond, CreateData, Field, SetField, UpdateData},
-    Stmt,
-};
-use surrealdb::sql::{Operator, Output};
+use std::fmt::format;
 
+use super::Record;
 use crate::lib::{
     db::DB,
     entry::{
@@ -12,18 +8,16 @@ use crate::lib::{
         vo::UserPersonalSetting,
     },
 };
+use rocket::serde::{Deserialize, Serialize};
+use surreal_use::core::{
+    sql::{Cond, CreateData, Field, SetField, UpdateData},
+    Stmt,
+};
+use surrealdb::sql::{Operator, Output};
 
-pub async fn select_user_by_username(username: &str) -> Option<User> {
-    let sql = Stmt::select()
-        .table("user".into())
-        .field_all()
-        .cond(
-            Cond::new()
-                .left_easy("username")
-                .op(Operator::Equal)
-                .right(username.into()),
-        )
-        .to_string();
+pub async fn select_user_by_id(id: &str) -> Option<User> {
+    let table = format!("user:{}", id);
+    let sql = Stmt::select().table(table.as_str().into()).to_string();
 
     let mut result = DB.query(sql).await.unwrap();
     let sql_result: Vec<User> = result.take(0_usize).unwrap();
@@ -36,7 +30,39 @@ pub async fn select_user_by_username(username: &str) -> Option<User> {
     }
 }
 
+pub async fn select_user_record_by_username(username: &str) -> Option<(String, User)> {
+    let sql = Stmt::select()
+        .table("user".into())
+        .field_all()
+        .cond(
+            Cond::new()
+                .left_easy("username")
+                .op(Operator::Equal)
+                .right(username.into()),
+        )
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<Record<User>> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        let res = sql_result[0].clone();
+        Some(res.to_record())
+    } else {
+        None
+    }
+}
+
+pub async fn select_user_by_username(username: &str) -> Option<User> {
+    let query = select_user_record_by_username(username).await;
+    if let Some((_id, user)) = query {
+        Some(user)
+    } else {
+        None
+    }
+}
+
 pub async fn check_user_by_username(username: &str) -> bool {
+    dbg!(username);
+
     #[derive(Serialize, Deserialize)]
     #[serde(crate = "rocket::serde")]
     struct TmpUser {
@@ -165,5 +191,28 @@ pub async fn update_user_avatar(username: &str, avatar: Avatars) -> bool {
         return true;
     } else {
         return false;
+    }
+}
+
+pub async fn update_user_by_username(user: User) -> Option<User> {
+    let username = user.clone().username;
+    let sql = Stmt::update()
+        .table("user".into())
+        .data(UpdateData::content(user))
+        .cond(
+            Cond::new()
+                .left_easy("username")
+                .op(Operator::Equal)
+                .right(username.into()),
+        )
+        .output(Output::After)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<User> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        let res = sql_result[0].clone();
+        Some(res)
+    } else {
+        None
     }
 }

@@ -1,9 +1,12 @@
 use std::fmt::Display;
 
-use rocket::serde::{Deserialize, Serialize};
+use rocket::serde::{
+    de::{self, Visitor},
+    Deserialize, Serialize,
+};
+use surrealdb::sql::value;
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(crate = "rocket::serde")]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Tags {
     Info,
     Success,
@@ -15,6 +18,42 @@ pub enum Tags {
 impl Default for Tags {
     fn default() -> Self {
         Tags::Default
+    }
+}
+struct TagsVisitor;
+
+impl<'de> Visitor<'de> for TagsVisitor {
+    type Value = Tags;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        formatter
+            .write_str("a string containing 'info', 'success', 'warning', 'default', or 'danger'")
+    }
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: rocket::serde::de::Error,
+    {
+        let value = v.to_lowercase();
+        match value.as_str() {
+            "info" => Ok(Tags::Info),
+            "success" => Ok(Tags::Success),
+            "" => Ok(Tags::Default),
+            "danger" => Ok(Tags::Danger),
+            "warning" => Ok(Tags::Warning),
+            _ => Err(rocket::serde::de::Error::invalid_value(
+                de::Unexpected::Str(&value),
+                &self,
+            )),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Tags {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: rocket::serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(TagsVisitor)
     }
 }
 
@@ -40,12 +79,59 @@ impl Display for Tags {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-enum Effects {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Effects {
     Dark,
     Light,
     Plain,
+}
+
+impl Serialize for Effects {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: rocket::serde::Serializer,
+    {
+        let res = match self {
+            Effects::Dark => "dark",
+            Effects::Light => "light",
+            Effects::Plain => "plain",
+        };
+        serializer.serialize_str(res)
+    }
+}
+
+struct EffectsVisitor;
+
+impl<'de> Visitor<'de> for EffectsVisitor {
+    type Value = Effects;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        formatter.write_str("a string containing `dark`, `light`, `plain`'")
+    }
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        let value = v.to_lowercase();
+        match value.as_str() {
+            "dark" => Ok(Effects::Dark),
+            "plain" => Ok(Effects::Plain),
+            "light" => Ok(Effects::Light),
+            _ => Err(rocket::serde::de::Error::invalid_value(
+                de::Unexpected::Str(&value),
+                &self,
+            )),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Effects {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(EffectsVisitor)
+    }
 }
 
 /// 自定义构建ElementPlus中el-tag的必要参数

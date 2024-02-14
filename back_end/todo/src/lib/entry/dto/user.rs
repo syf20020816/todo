@@ -1,5 +1,9 @@
+use crate::lib::entry::vo;
+
 use super::Avatars;
+use super::Priorities;
 use super::Team;
+use super::Todo;
 use super::TodoBox;
 use rocket::serde::{self, Deserialize, Serialize};
 
@@ -7,34 +11,37 @@ use rocket::serde::{self, Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(crate = "rocket::serde")]
 pub struct User {
-    username: String,
-    name: String,
+    pub username: String,
+    pub name: String,
     // #[serde(skip_serializing)]
-    password: String,
-    avatar: Avatars,
-    email: String,
+    pub password: String,
+    pub avatar: Avatars,
+    pub email: String,
     #[serde(rename(serialize = "teamNumber"))]
     #[serde(rename(deserialize = "teamNumber"))]
-    team_number: u8,
+    pub team_number: u8,
     #[serde(rename(serialize = "todoNumber"))]
     #[serde(rename(deserialize = "todoNumber"))]
-    todo_number: u16,
+    pub todo_number: u16,
     #[serde(rename(serialize = "totalTodo"))]
     #[serde(rename(deserialize = "totalTodo"))]
-    total_todo: u16,
-    todos: TodoBox,
-    teams: Option<Vec<Team>>,
+    pub total_todo: u16,
+    pub todos: TodoBox,
+    pub teams: Option<Vec<Team>>,
     #[serde(rename(serialize = "sendEmail"))]
     #[serde(rename(deserialize = "sendEmail"))]
-    send_email: bool,
+    pub send_email: bool,
     #[serde(rename(serialize = "sendMsg"))]
     #[serde(rename(deserialize = "sendMsg"))]
-    send_msg: bool,
+    pub send_msg: bool,
 }
 
 impl User {
     pub fn new() -> User {
         User::default()
+    }
+    pub fn username(&self) -> &str {
+        &self.username
     }
     pub fn quick_init(name: &str, username: &str, password: &str, email: &str) -> Self {
         User {
@@ -54,6 +61,15 @@ impl User {
     }
     pub fn skip_pwd(&mut self) {
         self.password = String::new();
+    }
+    pub fn add_todo(&mut self, todo_id: String, priority: Priorities) {
+        self.todo_number += 1;
+        self.total_todo += 1;
+        match priority {
+            Priorities::Emergent | Priorities::High => self.todos.fatal.push(todo_id),
+            Priorities::Mid => self.todos.mid.push(todo_id),
+            Priorities::Low => self.todos.low.push(todo_id),
+        };
     }
 }
 

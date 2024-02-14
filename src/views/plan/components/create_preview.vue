@@ -6,7 +6,7 @@
         <span>{{ week[date.getDay()] }}</span>
       </div>
       <div class="info_wrapper">
-        <div class="info_item" v-for="(item, index) in infoList" :key="index">
+        <div class="info_item" v-for="(item, index) in userStore.todoList" :key="index">
           <div class="title">{{ item.label }}</div>
           <div class="value">{{ item.value }}</div>
         </div>
@@ -45,12 +45,15 @@
   <el-dialog v-model="addTodoVisible" title="Add New Todo" width="680">
     <div>
       <el-form
+        ref="todoFormRef"
+        :rules="rules"
         label-position="left"
         label-width="120px"
         :model="todoForm"
         style="max-width: 600px"
+        status-icon
       >
-        <el-form-item label="Todo Name">
+        <el-form-item label="Todo Name" prop="name">
           <el-input v-model="todoForm.name" />
         </el-form-item>
         <el-form-item label="Priority">
@@ -140,14 +143,15 @@
             placeholder="Please input"
           />
         </el-form-item>
-        <el-form-item label="Date">
+        <el-form-item label="Date" prop="date">
           <el-date-picker
-            v-model="dateRange"
+            v-model="todoForm.date"
             type="datetimerange"
             :shortcuts="shortcuts"
             range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
+            @visible-change="checkDate"
           />
         </el-form-item>
         <el-form-item label="Focus?">
@@ -177,7 +181,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="addTodoVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="addNewTodo"> Add </el-button>
+        <el-button type="primary" @click="addNewTodo(todoFormRef)"> Add </el-button>
       </div>
     </template>
   </el-dialog>
@@ -187,10 +191,10 @@
 import { ref, reactive, computed, toRaw } from 'vue'
 import { TODOItem } from '../index'
 import { CircleClose, QuestionFilled, CirclePlusFilled } from '@element-plus/icons-vue'
-import { Todo, Priorities, Avatars, Status, usePriorityColor, useAvatar, useStatus, convertFileToBase64,ITagProps, priorityOptions, effectOptions, typeOptions } from '../../../core'
-import { type UploadProps, type UploadUserFile, type UploadInstance, ElMessage,type UploadFile , type UploadFiles } from 'element-plus'
+import { Todo, Priorities, Avatars, Status, usePriorityColor, useAvatar, useStatus, convertFileToBase64, ITagProps, priorityOptions, effectOptions, typeOptions, Annex } from '../../../core'
+import { type UploadProps, type UploadUserFile, type UploadInstance, ElMessage, type UploadFile, type UploadFiles, FormRules, FormInstance } from 'element-plus'
 import api from '../../../api'
-import {user as userPinia} from "../../../store/src/user"
+import { user as userPinia } from '../../../store/src/user'
 
 const props = defineProps<{
   datas: Todo[]
@@ -198,10 +202,11 @@ const props = defineProps<{
 const userStore = userPinia()
 const date = new Date()
 const addTodoVisible = ref(false)
+const todoFormRef = ref<FormInstance>()
 const addTagVisible = ref(false)
 const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const uploadRef = ref<UploadInstance>()
-const dateRange = ref<[Date, Date]>([new Date(), new Date()])
+
 const todoTag = ref<ITagProps>({
   type: '',
   effect: 'dark',
@@ -226,9 +231,9 @@ const infoList = reactive([
   }
 ])
 const fileList = ref<UploadUserFile[]>([])
-const fileBase64List = ref<string[]>([])
+
 const currentTodo = ref<any>()
-const todoForm = reactive<Todo>({} as Todo)
+
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low
   return `background-color : ${usePriorityColor(priority)}`
@@ -273,20 +278,109 @@ const shortcuts = [
   }
 ]
 
-const addNewTodo = async () => {
-  let {username} = userStore.user
-
-  let todo = todoForm;
-  console.log(todo)
-
-  // const data = await api.todo.addNewTodo(username , );
+interface TodoRuleForm {
+  name: string
+  priority: Priorities
+  date: [Date, Date]
+  tags: Array<ITagProps>
+  description: string
+  information: string
+  annexs: Array<string>
+  isFocus: boolean
 }
 
-const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFiles) =>{
-  let file = uploadFile.raw;
-  if(typeof file !=='undefined'){
-    convertFileToBase64(file).then(base64=>{
-      fileBase64List.value.push(base64)
+const todoForm = reactive<TodoRuleForm>({
+  name: '',
+  priority: Priorities.Mid,
+  date: [new Date(), new Date()],
+  tags: [],
+  description: '',
+  information: '',
+  annexs: [],
+  isFocus: false
+})
+
+const rules = reactive<FormRules<TodoRuleForm>>({
+  name: [
+    { required: true, message: 'Please input Todo name', trigger: 'blur' },
+    { min: 1, max: 16, message: 'Length should be 1 to 16', trigger: 'blur' }
+  ],
+  date: [
+    {
+      required: true,
+      message: 'Please set start and end time',
+      trigger: 'blur visible-change'
+    }
+  ]
+})
+
+const checkDate = () => {
+  let { date } = todoForm
+  if (!date) {
+    todoForm.date = [new Date(), new Date()]
+    ElMessage({
+      type: 'warning',
+      message: 'Please set start and end time'
+    })
+  }
+}
+
+const convertTodo = (): Todo => {
+  let during = todoForm.date[1].getTime() - todoForm.date[0].getTime()
+  let currentTime = new Date().getTime() - todoForm.date[0].getTime()
+  let status = currentTime > 0 ? Status.NOT_START : Status.IN_PROGRESS
+  let { username } = userStore.user
+  let todo: Todo = {
+    owner: username,
+    name: todoForm.name,
+    priority: todoForm.priority,
+    /// 审核人
+    reviewers: [],
+    performers: [],
+    date: {
+      start: todoForm.date[0].toLocaleString(),
+      end: todoForm.date[1].toLocaleString(),
+      during
+    },
+    tags: toRaw(todoForm.tags),
+    status,
+    description: todoForm.description,
+    information: todoForm.information,
+    /// 附件
+    annexs: toRaw(todoForm.annexs),
+    isFocus: todoForm.isFocus
+  }
+  return todo
+}
+
+const addNewTodo = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      let todo = convertTodo()
+      console.log(todo)
+
+      const data = await api.todo.addNewTodo(todo)
+
+      console.log(data)
+      if (typeof data !== 'undefined') {
+        ElMessage({
+          type: 'success',
+          message: 'Create new Todo successfully'
+        })
+        userStore.setUser(data)
+      }
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
+
+const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFiles) => {
+  let file = uploadFile.raw
+  if (typeof file !== 'undefined') {
+    convertFileToBase64(file).then(base64 => {
+      todoForm.annexs.push(base64)
     })
   }
 }
@@ -308,19 +402,18 @@ const addTag = () => {
     })
     return
   }
-  for(let tag of tags){
+  for (let tag of tags) {
     let tagStr = JSON.stringify(toRaw(tag))
     let newTagStr = JSON.stringify(toRaw(todoTag.value))
-    if(tagStr===newTagStr){
+    if (tagStr === newTagStr) {
       ElMessage({
-      type: 'warning',
-      message: 'you already have the same tag'
-    })
-    return
-    }else{
+        type: 'warning',
+        message: 'you already have the same tag'
+      })
+      return
+    } else {
       continue
     }
-
   }
 
   tags.push(toRaw(todoTag.value))

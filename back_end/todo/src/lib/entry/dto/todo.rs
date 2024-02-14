@@ -4,6 +4,7 @@ use rocket::serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
+    pub owner: String,
     pub name: String,
     pub priority: Priorities,
     /// 审核人
@@ -15,7 +16,7 @@ pub struct Todo {
     pub description: Option<String>,
     pub information: Option<String>,
     /// 附件
-    pub annexs: Option<Vec<Annex>>,
+    pub annexs: Option<Vec<String>>,
     #[serde(rename(serialize = "isFocus"))]
     #[serde(rename(deserialize = "isFocus"))]
     pub is_focus: bool,
@@ -35,19 +36,41 @@ impl Default for Todo {
             information: None,
             annexs: None,
             is_focus: false,
+            owner: "".to_string(),
         }
+    }
+}
+
+impl Todo {
+    pub fn set_owner(&mut self, id: String) -> () {
+        self.owner = id;
+    }
+    pub fn have_reviewers(&self) -> bool {
+        !self.reviewers.is_empty()
+    }
+    pub fn have_performers(&self) -> bool {
+        !self.performers.is_empty()
+    }
+    pub fn is_self_todo(&self) -> bool {
+        !self.have_reviewers() && !self.have_performers()
+    }
+    pub fn is_team_todo(&self) -> bool {
+        !self.is_self_todo()
+    }
+    pub fn priority(&self) -> Priorities {
+        self.priority.clone()
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct TodoBox {
-    low: Vec<Todo>,
-    mid: Vec<Todo>,
-    fatal: Vec<Todo>,
+    pub low: Vec<String>,
+    pub mid: Vec<String>,
+    pub fatal: Vec<String>,
     //关注
-    focus: Vec<Todo>,
-    history: Vec<Todo>,
+    pub focus: Vec<String>,
+    pub history: Vec<String>,
 }
 
 impl Default for TodoBox {

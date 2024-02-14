@@ -131,18 +131,19 @@ export const typeOptions = [
 ]
 
 export type Todo = {
+  owner: string
   name: string
   priority: Priorities
   /// 审核人
   reviewers: Array<User>
   performers: Array<User>
-  date: Date
+  date: IDate
   tags: Array<ITagProps>
   status: Status
   description: Option<String>
   information: Option<String>
   /// 附件
-  annexs: Option<Array<Annex>>
+  annexs: Option<Array<string>>
   isFocus: boolean
 }
 

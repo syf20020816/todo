@@ -1,10 +1,20 @@
-use crate::lib::entry::dto::{self, Annex, Date, ITagProps, Priorities, Priority, Status, User};
-use rocket::serde::{Deserialize, Serialize};
+use crate::lib::{
+    entry::dto::{self, Annex, Date, ITagProps, Priorities, Priority, Status},
+    mapping::{select_todo_record, select_user_by_username},
+};
+use rocket::{
+    futures::{
+        executor::block_on,
+        future::{join, join_all},
+    },
+    serde::{Deserialize, Serialize},
+};
+
+use super::User;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
-    id: String,
     name: String,
     priority: Priorities,
     /// 审核人
@@ -16,20 +26,48 @@ pub struct Todo {
     description: Option<String>,
     information: Option<String>,
     /// 附件
-    annexs: Option<Vec<Annex>>,
+    annexs: Option<Vec<String>>,
     #[serde(rename(serialize = "isFocus"))]
     #[serde(rename(deserialize = "isFocus"))]
     is_focus: bool,
 }
 
-impl From<dto::Todo> for Todo {
-    fn from(value: dto::Todo) -> Self {
+impl Todo {
+    pub fn have_reviewers(&self) -> bool {
+        !self.reviewers.is_empty()
+    }
+    pub fn have_performers(&self) -> bool {
+        !self.performers.is_empty()
+    }
+    pub fn is_self_todo(&self) -> bool {
+        !self.have_reviewers() && !self.have_performers()
+    }
+    pub fn is_team_todo(&self) -> bool {
+        !self.is_self_todo()
+    }
+    pub fn priority(&self) -> Priorities {
+        self.priority.clone()
+    }
+    pub async fn from(value: dto::Todo) -> Self {
+        let reviewers = value.reviewers;
+        let performers = value.performers;
+        let reviewers = convert_usernames_to_user_instances(reviewers).await;
+        let performers = convert_usernames_to_user_instances(performers).await;
+        // let result = join(reviewers_f, performer_f);
+        // let users = block_on(result);
+        let reviewers = reviewers
+            .into_iter()
+            .map(|item| User::easy_from(item))
+            .collect::<Vec<User>>();
+        let performers = performers
+            .into_iter()
+            .map(|item| User::easy_from(item))
+            .collect::<Vec<User>>();
         Todo {
-            id: String::new(),
             name: value.name,
             priority: value.priority,
-            reviewers: Vec::new(),
-            performers: Vec::new(),
+            reviewers,
+            performers,
             date: value.date,
             tags: value.tags,
             status: value.status,
@@ -41,6 +79,122 @@ impl From<dto::Todo> for Todo {
     }
 }
 
+async fn convert_usernames_to_user_instances(usernames: Vec<String>) -> Vec<dto::User> {
+    let mut res = Vec::new();
+    for username in usernames {
+        let query = select_user_by_username(&username).await;
+        if let Some(user) = query {
+            res.push(user);
+        }
+    }
+    res
+}
+
 impl Todo {
     fn select_reviewers(&self) -> () {}
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct TodoBox {
+    pub low: Vec<Todo>,
+    pub mid: Vec<Todo>,
+    pub fatal: Vec<Todo>,
+    //关注
+    pub focus: Vec<Todo>,
+    pub history: Vec<Todo>,
+}
+
+impl TodoBox {
+    pub fn push(&mut self, todo: Todo) -> () {
+        let priority = todo.priority();
+        let is_focus = todo.is_focus;
+        if is_focus {
+            self.focus.push(todo.clone());
+        }
+        match priority {
+            Priorities::Emergent | Priorities::High => self.fatal.push(todo),
+            Priorities::Mid => self.mid.push(todo),
+            Priorities::Low => self.low.push(todo),
+        };
+    }
+    pub async fn from(value: dto::TodoBox) -> Self {
+        dbg!(&value);
+        let dto::TodoBox {
+            low,
+            mid,
+            fatal,
+            focus,
+            history,
+        } = value;
+        let low = convert_ids_to_todo_instances(low).await;
+        let mid = convert_ids_to_todo_instances(mid).await;
+        let fatal = convert_ids_to_todo_instances(fatal).await;
+        let focus = convert_ids_to_todo_instances(focus).await;
+        let history = convert_ids_to_todo_instances(history).await;
+
+        TodoBox {
+            low,
+            mid,
+            fatal,
+            focus,
+            history,
+        }
+    }
+}
+
+// impl From<dto::TodoBox> for TodoBox {
+//     fn from(value: dto::TodoBox) -> Self {
+//         dbg!(&value);
+//         let dto::TodoBox {
+//             low,
+//             mid,
+//             fatal,
+//             focus,
+//             history,
+//         } = value;
+//         let low = convert_ids_to_todo_instances(low);
+//         let mid = convert_ids_to_todo_instances(mid);
+//         let res = join(low, mid);
+//         let res = block_on(res);
+//         // let fatal = convert_ids_to_todo_instances(fatal);
+//         // let focus = convert_ids_to_todo_instances(focus);
+//         // let history = convert_ids_to_todo_instances(history);
+//         // let results = join_all(vec![low, mid, fatal, focus, history]);
+
+//         // let todos = block_on(results);
+//         // dbg!(&todos);
+//         // TodoBox {
+//         //     low: todos[0].clone(),
+//         //     mid: todos[1].clone(),
+//         //     fatal: todos[2].clone(),
+//         //     focus: todos[3].clone(),
+//         //     history: todos[4].clone(),
+//         // }
+//         TodoBox {
+//             low: res.0,
+//             mid: res.1,
+//             fatal: vec![],
+//             focus: vec![],
+//             history: vec![],
+//         }
+//     }
+// }
+
+pub async fn convert_ids_to_todo_instances(ids: Vec<String>) -> Vec<Todo> {
+    if ids.is_empty() {
+        return Vec::new();
+    }
+    let mut res = Vec::new();
+    for id in ids {
+        let query = select_todo_record(id.as_str()).await;
+        dbg!(&query);
+        if let Some((_id, todo)) = query {
+            let todo = Todo::from(todo).await;
+            dbg!(&todo);
+            res.push(todo);
+        }
+    }
+    dbg!(&res);
+    res
 }

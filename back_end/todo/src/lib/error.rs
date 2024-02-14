@@ -8,6 +8,8 @@ pub enum Error {
     ExistAccount,
     ChangeUserSetting,
     ChangeUserAvatar,
+    UpdateUser,
+    CreateTodo,
 }
 
 impl Error {
@@ -17,6 +19,8 @@ impl Error {
             Error::ExistAccount => (1002, self.to_string()),
             Error::ChangeUserSetting => (1003, self.to_string()),
             Error::ChangeUserAvatar => (1004, self.to_string()),
+            Error::UpdateUser => (1005, self.to_string()),
+            Error::CreateTodo => (1101, self.to_string()),
         }
     }
 }
@@ -30,6 +34,8 @@ impl Display for Error {
             Error::ExistAccount => "The current account already exists. Please change the username",
             Error::ChangeUserSetting => "Failed to modify user configuration",
             Error::ChangeUserAvatar => "Failed to modify user avatar",
+            Error::UpdateUser => "Update user data failed",
+            Error::CreateTodo => "Create a new todo failed",
         };
         f.write_str(alert_msg)
     }
