@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
-import { Avatars, Todo, useAvatar, User } from '../../core'
+import { Avatars, Notice, Status, Todo, useAvatar, User } from '../../core'
+import api from '../../api'
+import { ElMessage, ElNotification } from 'element-plus'
 
 // useStore 可以是 useUser、useCart 之类的任何东西
 // 第一个参数是应用程序中 store 的唯一 id
@@ -10,7 +12,9 @@ export const user = defineStore('user', {
       user: {} as User,
       isSignIn: false,
       todoInfoList: [] as { label: string; value: number | string }[],
-      todos: [] as Todo[]
+      todos: [] as Todo[],
+      watcher: null as null | number,
+      msgBox: [] as Notice[]
     }
   },
   actions: {
@@ -29,6 +33,7 @@ export const user = defineStore('user', {
       this.user = user
       window.localStorage.setItem('todo-user', JSON.stringify(this.user))
       this.updateTodoList()
+      this.todoWatcher()
     },
     setSignIn() {
       window.localStorage.setItem('todo-sign-in', this.user.username.toString())
@@ -82,6 +87,62 @@ export const user = defineStore('user', {
       ]
 
       this.todos = [...low, ...mid, ...fatal]
+    },
+    notifyTodoSys(todo: Todo) {
+      let id = 'todo-' + todo.id!
+      let flag = this.msgBox.filter(item => item.id === id).length === 0
+      if (flag) {
+        this.msgBox.push({
+          title: 'Notifications: Todo-' + todo.name,
+          description: 'The current TODO has timed out, please choose a processing strategy',
+          notifier: 'System',
+          type: 'todo',
+          data: todo,
+          date: new Date().toLocaleString(),
+          id
+        })
+      }
+    },
+    todoWatcher() {
+      if (this.watcher !== null) {
+        clearInterval(this.watcher)
+      }
+      this.watcher = setInterval(() => {
+        let current = new Date().getTime()
+        this.todos.forEach(async (todo: Todo) => {
+          let { date, status, id } = todo
+          if (status !== Status.COMPLETED && status !== Status.PENDING) {
+            // 更新状态
+            // > 0 已经开始
+            let start = current - new Date(date.start).getTime()
+            if (start > 0) {
+              if (status !== Status.IN_PROGRESS) {
+                todo.status = Status.IN_PROGRESS
+                // 更新
+                const data = await api.todo.updateTodoStatus(id!, todo.status)
+                if (data) {
+                  const user = await api.user.getUserInfo(this.user.username)
+                  this.setUser(user!)
+                } else {
+                  ElMessage({
+                    type: 'error',
+                    message: 'User Update Error!'
+                  })
+                }
+              }
+            }
+
+            let remain = new Date(date.end).getTime() - current
+            if (remain < 0) {
+              //已经结束了
+              //通知系统提醒用户，若用户同意，将TODO设置为Pending状态
+              // const data = api.todo.unCompletedTodo(this.user.username, todo)
+              console.log(todo)
+              this.notifyTodoSys(todo)
+            }
+          }
+        })
+      }, 15 * 1000)
     }
   }
 })

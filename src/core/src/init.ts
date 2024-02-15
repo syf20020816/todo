@@ -1,3 +1,5 @@
+import { Todo } from './todo'
+
 const toStore = (target: any): string => {
   return JSON.stringify(target)
 }

@@ -16,24 +16,27 @@ use super::User;
 #[serde(crate = "rocket::serde")]
 pub struct Todo {
     id: String,
-    name: String,
-    priority: Priorities,
+    pub name: String,
+    pub priority: Priorities,
     /// 审核人
-    reviewers: Vec<User>,
-    performers: Vec<User>,
-    date: Date,
-    tags: Vec<ITagProps>,
-    status: Status,
-    description: Option<String>,
-    information: Option<String>,
+    pub reviewers: Vec<User>,
+    pub performers: Vec<User>,
+    pub date: Date,
+    pub tags: Vec<ITagProps>,
+    pub status: Status,
+    pub description: Option<String>,
+    pub information: Option<String>,
     /// 附件
-    annexs: Option<Vec<Annex>>,
+    pub annexs: Option<Vec<Annex>>,
     #[serde(rename(serialize = "isFocus"))]
     #[serde(rename(deserialize = "isFocus"))]
-    is_focus: bool,
+    pub is_focus: bool,
 }
 
 impl Todo {
+    pub fn id(&self) -> &str {
+        &self.id
+    }
     pub fn have_reviewers(&self) -> bool {
         !self.reviewers.is_empty()
     }
@@ -191,7 +194,6 @@ pub async fn convert_ids_to_todo_instances(ids: Vec<String>) -> Vec<Todo> {
         let query = select_todo_record(id.as_str()).await;
         if let Some((id, todo)) = query {
             let todo = Todo::from(todo, id).await;
-            dbg!(&todo);
             res.push(todo);
         }
     }

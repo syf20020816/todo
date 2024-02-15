@@ -1,10 +1,13 @@
 use surreal_use::core::{
-    sql::{CreateData, SurrealTable},
+    sql::{CreateData, SetField, SurrealTable, UpdateData},
     Stmt,
 };
 use surrealdb::sql::Output;
 
-use crate::lib::{db::DB, entry::dto::Todo};
+use crate::lib::{
+    db::DB,
+    entry::dto::{Status, Todo},
+};
 
 use super::{select_user_record_by_username, Record};
 
@@ -50,6 +53,36 @@ pub async fn delete_todo_by_id(id: &str) -> bool {
     let sql = Stmt::delete()
         .table(("todo", id).into())
         .output(Output::Before)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        true
+    } else {
+        false
+    }
+}
+
+pub async fn update_todo_by_id(id: &str, todo: Todo) -> bool {
+    let sql = Stmt::update()
+        .table(("todo", id).into())
+        .data(UpdateData::content(todo))
+        .output(Output::After)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        true
+    } else {
+        false
+    }
+}
+
+pub async fn update_todo_status_by_id(id: &str, status: &str) -> bool {
+    let sql = Stmt::update()
+        .table(("todo", id).into())
+        .data(UpdateData::set().push(SetField::new("status", None, status)))
+        .output(Output::After)
         .to_string();
     let mut result = DB.query(sql).await.unwrap();
     let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();

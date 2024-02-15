@@ -8,6 +8,7 @@
       <el-button type="success" @click="completeTodo">✅complete</el-button>
       <el-button type="warning" @click="changeTodo">change</el-button>
       <el-button type="danger" @click="deleteTodo">❌discard</el-button>
+      <el-button type="info" @click="pendingTodo">🦥pending</el-button>
     </div>
     <div class="details">
       <div class="left">
@@ -102,6 +103,7 @@ import {
   useStatus,
   downloadBlob,
   base64ToBlob,
+  Status,
 } from "../../../core";
 import api from "../../../api";
 import { ElMessage } from "element-plus";
@@ -111,7 +113,7 @@ const props = defineProps<{
   currentTodo?: Todo;
 }>();
 const userStore = userPinia();
-const emits = defineEmits(["change", "delete"]);
+const emits = defineEmits(["change", "delete", "refresh"]);
 
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low;
@@ -119,7 +121,7 @@ const getPriorityDot = computed(() => (item: Todo) => {
 });
 
 const countDuring = (timestamp: number): string => {
-  return `${timestamp / 1000 / 60 / 60} h`;
+  return `${(timestamp / 1000 / 60 / 60).toFixed(2)} h`;
 };
 
 const downloadAnnexs = () => {
@@ -145,6 +147,20 @@ const deleteTodo = async () => {
     userStore.setUser(data);
   }
   emits("delete");
+};
+
+const pendingTodo = async () => {
+  let id = props.currentTodo!.id!;
+  const data = await api.todo.updateTodoStatus(id, Status.PENDING);
+  if (data) {
+    ElMessage({
+      type: "success",
+      message: "Pending TODO successfully",
+    });
+    const user = await api.user.getUserInfo(userStore.user.username);
+    userStore.setUser(user!);
+    emits("refresh", props.currentTodo?.id!);
+  }
 };
 </script>
 

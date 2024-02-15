@@ -43,15 +43,13 @@ $colors: map.deep-merge(
 );
 */
 
-
-
 /* 只需要重写你需要的即可 */
-@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+@forward "element-plus/theme-chalk/src/common/var.scss" with (
   $colors: (
-    'primary': (
-      'base': #3B3A39 ,
-    ),
-  ),
+    "primary": (
+      "base": #3b3a39
+    )
+  )
 );
 
 // 如果只是按需导入，则可以忽略以下内容。
@@ -59,40 +57,41 @@ $colors: map.deep-merge(
 @use "element-plus/theme-chalk/src/index.scss" as *;
 @use "./src/var.scss" as *;
 
- 
 //以下是常用的默认样式修改
-body{
+body {
   padding: 0;
   margin: 0;
 }
 
-.el-container,.el-header,.el-main,i,.el-footer{
+.el-container,
+.el-header,
+.el-main,
+i,
+.el-footer {
   padding: 0;
   margin: 0;
   font-weight: 700;
-  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
+    sans-serif;
 }
 
-a{
+a {
   text-decoration: none;
 }
 
-li{
+li {
   list-style: none;
 }
 
-.el-tabs__item:hover{
+.el-tabs__item:hover {
   color: $force-color;
 }
-.el-tabs__item.is-active{
+.el-tabs__item.is-active {
   color: $force-color !important;
-
 }
 
-
-.el-tabs__active-bar{
+.el-tabs__active-bar {
   background-color: $force-color;
-
 }
 
 .el-loading-spinner .circular {
@@ -103,11 +102,11 @@ li{
   background-size: 100px 100px;
   background-position: center;
   width: 300px;
-  height:300px;
+  height: 300px;
   position: absolute !important;
   left: 50%;
   top: 40% !important;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   text-align: center;
 }
 
@@ -117,7 +116,7 @@ li{
   bottom: 0;
   text-align: center;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   color: $force-color !important;
   font-size: 18px !important;
 }
@@ -128,7 +127,7 @@ li{
   font-weight: 400;
   font-size: 16px;
   color-scheme: light dark;
- 
+
   color: #ffffff;
   // background-color: #242424;
   background-color: $bg-color-dark;
@@ -137,21 +136,25 @@ li{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  --el-rate-text-color :#fff;
+  --el-rate-text-color: #fff;
   --el-menu-text-color: #dfdfdf;
-  --el-text-color-primary:#7a7a7a;
-  --el-table-bg-color : #3B3A39;
-  --el-table-header-bg-color:#3B3A39;
+  --el-text-color-primary: #7a7a7a;
+  --el-table-bg-color: #3b3a39;
+  --el-table-header-bg-color: #3b3a39;
 }
 
-
-#app { 
+#app {
   margin: 0;
-  padding:0;
+  padding: 0;
   text-align: center;
 }
 
-.iconfont{
+.iconfont {
   font-size: 2vh !important;
 }
 
+.el-popover {
+  max-height: 273px !important;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+}

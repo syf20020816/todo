@@ -11,6 +11,7 @@ pub enum Error {
     UpdateUser,
     CreateTodo,
     DeleteTodo,
+    UpdateTodo,
 }
 
 impl Error {
@@ -23,6 +24,7 @@ impl Error {
             Error::UpdateUser => (1005, self.to_string()),
             Error::CreateTodo => (1101, self.to_string()),
             Error::DeleteTodo => (1102, self.to_string()),
+            Error::UpdateTodo => (1103, self.to_string()),
         }
     }
 }
@@ -39,6 +41,7 @@ impl Display for Error {
             Error::UpdateUser => "Update user data failed",
             Error::CreateTodo => "Create a new todo failed",
             Error::DeleteTodo => "Delete todo failed",
+            Error::UpdateTodo => "Update todo failed",
         };
         f.write_str(alert_msg)
     }

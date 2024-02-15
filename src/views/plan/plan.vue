@@ -45,6 +45,17 @@
           <Table :datas="userStore.todos"></Table>
         </div>
       </el-tab-pane>
+      <el-tab-pane>
+        <template #label>
+          <span class="custom-tabs-label">
+            <div class="svg" v-html="useSvg(SVGs.PENDING, 16)"></div>
+            <span class="title">Pending</span>
+          </span>
+        </template>
+        <div class="table_wrapper">
+          <Table :datas="userStore.todos"></Table>
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>

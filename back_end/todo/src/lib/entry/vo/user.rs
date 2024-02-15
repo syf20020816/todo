@@ -58,6 +58,9 @@ pub struct User {
 }
 
 impl User {
+    pub fn username(&self) -> &str {
+        &self.username
+    }
     pub fn easy_from(user: dto::User) -> Self {
         User {
             username: user.username,

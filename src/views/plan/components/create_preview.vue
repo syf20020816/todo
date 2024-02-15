@@ -16,15 +16,17 @@
         </div>
       </div>
       <div class="work_wrapper">
-        <el-button type="primary" @click="addTodoVisible = true">Add New TODO</el-button>
+        <el-button type="primary" @click="openAddDialog">Add New TODO</el-button>
         <el-button type="danger">Remove All TODOs</el-button>
         <el-button type="success">Complete All TODOs</el-button>
       </div>
       <div class="todo_wrapper">
         <TODOItem
+          v-if="isShow"
           :current-todo="currentTodo"
           @change="changeTodo"
           @delete="deleteTodo"
+          @refresh="refreshTodo"
         ></TODOItem>
       </div>
     </div>
@@ -45,7 +47,6 @@
           <el-icon size="18px" class="icons" @click="showTodoDetails(item)"
             ><QuestionFilled
           /></el-icon>
-          <el-icon size="18px" class="icons"><CircleClose /></el-icon>
         </div>
       </div>
     </div>
@@ -184,6 +185,7 @@
               <div v-if="isChange">
                 <div>Annexs have been uploaded</div>
                 <el-tag
+                  @close="removeUploadFile(item)"
                   closable
                   effect="plain"
                   type="info"
@@ -233,11 +235,23 @@ const todoTag = ref<ITagProps>({
   effect: 'dark',
   label: ''
 })
-
+const changeTodoItem = ref<{
+  id:string,
+  owner:string
+}>({
+  id:"",
+  owner:""
+})
 const fileList = ref<UploadUserFile[]>([])
 
 const currentTodo = ref<any>()
-
+  const isShow = computed(()=>{
+    if(typeof currentTodo.value==='undefined'){
+      return false;
+    }
+    const empty= Object.keys(currentTodo.value).length === 0 && currentTodo.value.constructor === Object
+    return !empty;
+})
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low
   return `background-color : ${usePriorityColor(priority)}`
@@ -375,22 +389,30 @@ const convertTodo = (): Todo => {
 }
 
 const addNewTodo = async (formEl: FormInstance | undefined) => {
-  isChange.value = false
+
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      let todo = convertTodo()
-      console.log(todo)
-
-      const data = await api.todo.addNewTodo(todo)
-
-      console.log(data)
+      let todo = convertTodo();
+      if(isChange.value){
+        Object.assign(todo,{owner:changeTodoItem.value.owner})
+        const data = await api.todo.updateTodo(userStore.user.username, changeTodoItem.value.id, todo)
+        if (typeof data !== 'undefined') {
+        ElMessage({
+          type: 'success',
+          message: 'Update Todo successfully'
+        })
+        userStore.setUser(data)
+      }
+      }else{
+        const data = await api.todo.addNewTodo(todo)
       if (typeof data !== 'undefined') {
         ElMessage({
           type: 'success',
           message: 'Create new Todo successfully'
         })
         userStore.setUser(data)
+      }
       }
     } else {
       console.log('error submit!', fields)
@@ -410,8 +432,9 @@ const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFile
   }
 }
 
-const submitUpload = () => {
-  // uploadRef.value!.submit();
+const openAddDialog = ()=>{
+  addTodoVisible.value = true
+  isChange.value = false
 }
 
 const addTag = () => {
@@ -466,10 +489,20 @@ const changeTodo = (todo:Todo)=>{
   todoForm.annexs = todo.annexs?? []
   addTodoVisible.value = true;
   isChange.value = true;
+  changeTodoItem.value.id =todo.id!;
+  changeTodoItem.value.owner = todo.owner
 }
 
 const deleteTodo = () => {
   currentTodo.value = {}
+}
+
+const removeUploadFile = (file:{name:string,data:string}) =>{
+  todoForm.annexs = todoForm.annexs.filter(f=>f.name!==file.name)
+}
+
+const refreshTodo = (_id:string)=>{
+  currentTodo.value = {};
 }
 </script>
 
@@ -563,7 +596,7 @@ const deleteTodo = () => {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        width: calc(100% - 48px);
+        width: calc(100% - 24px);
         .dot_wrapper {
           display: inline-block;
           height: 1.5em;
@@ -590,7 +623,7 @@ const deleteTodo = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 48px;
+        width: 24px;
         .icons {
           cursor: pointer;
         }

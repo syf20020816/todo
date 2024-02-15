@@ -1,4 +1,4 @@
-use rocket::serde::json::Json;
+use rocket::{http::uri::Query, serde::json::Json};
 
 use crate::lib::{
     entry::{
@@ -8,7 +8,7 @@ use crate::lib::{
     error::Error,
     mapping::{
         create_todo_by_username, delete_todo_by_id, select_todo_record, select_user_by_username,
-        update_user_by_username,
+        update_todo_by_id, update_todo_status_by_id, update_user_by_username,
     },
     response::ResultJsonData,
 };
@@ -19,7 +19,6 @@ pub async fn create_todo(todo: Json<Todo>) -> ResultJsonData<vo::User> {
     let username = todo.clone().owner;
     let query = create_todo_by_username(&username, todo).await;
     if let Some((id, todo)) = query {
-        dbg!(&id);
         let mut user = select_user_by_username(&username).await.unwrap();
         let priority = todo.priority();
         let _ = user.add_todo(id, priority);
@@ -27,7 +26,6 @@ pub async fn create_todo(todo: Json<Todo>) -> ResultJsonData<vo::User> {
         let update_query = update_user_by_username(user).await;
         if let Some(user) = update_query {
             let user = vo::User::from(user).await;
-            dbg!(&user);
             return ResultJsonData::success(user);
         } else {
             let e = Error::UpdateUser;
@@ -58,6 +56,34 @@ pub async fn delete_todo(username: &str, id: &str) -> ResultJsonData<vo::User> {
     let (e_code, e_msg) = e.get();
     return ResultJsonData::define_failure(e_code, &e_msg);
 }
+
+#[put("/<username>/<id>", format = "application/json", data = "<todo>")]
+pub async fn update_todo(username: &str, id: &str, todo: Json<Todo>) -> ResultJsonData<vo::User> {
+    let query = update_todo_by_id(&id, todo.0).await;
+    if query {
+        let user_query = select_user_by_username(username).await;
+        if let Some(mut user) = user_query {
+            let user = vo::User::from(user).await;
+            return ResultJsonData::success(user);
+        }
+    }
+    let e = Error::UpdateTodo;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
+}
+
+#[get("/<id>/<status>")]
+pub async fn update_todo_status(id: &str, status: &str) -> ResultJsonData<bool> {
+    let query = update_todo_status_by_id(id, status).await;
+    if query {
+        return ResultJsonData::success(query);
+    }
+    let e = Error::UpdateTodo;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
+}
+// #[post("/unCompleted/<username>", format = "application/json", data = "<todo>")]
+// pub async fn uncomplete_todo(username: &str,todo:Json<vo::Todo>)->ResultJsonData<>
 
 #[get("/ho")]
 pub async fn ho() -> ResultJsonData<bool> {

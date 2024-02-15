@@ -28,10 +28,16 @@
           v-html="useSvg(SVGs.SETTING, 24)"
           :class="buildWrap(component, 'logo-wrap')"
         ></div>
-        <div
-          v-html="useSvg(SVGs.NOTE, 24)"
-          :class="buildWrap(component, 'logo-wrap')"
-        ></div>
+        <el-popover placement="bottom" :width="300" trigger="click">
+          <template #reference>
+            <div :class="buildWrap(component, 'logo-wrap')">
+              <el-badge :value="userStore.msgBox.length" :max="99">
+                <div v-html="useSvg(SVGs.NOTE, 24)"></div
+              ></el-badge>
+            </div>
+          </template>
+          <Notice v-for="item in userStore.msgBox" :key="item.id" :data="item"></Notice>
+        </el-popover>
         <div :class="buildWrap(component, 'logo-wrap')">
           <el-popconfirm
             width="220"
@@ -136,7 +142,7 @@
 import { Search } from '@element-plus/icons-vue'
 import { ref, reactive, defineComponent, computed } from 'vue'
 import { buildView, buildWrap, UserInfoChangeForm } from '../../core'
-import { SVGs, useSvg } from '../index'
+import { SVGs, useSvg,Notice } from '../index'
 import { user } from '../../store/src/user'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 

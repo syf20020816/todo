@@ -12,6 +12,7 @@ $component: "Header";
   flex-wrap: nowrap;
   box-sizing: border-box;
   border-bottom: 1px solid $bg-color-hover;
+
   @include buildWrap($component, "logo-wrap") {
     cursor: pointer;
     height: inherit;

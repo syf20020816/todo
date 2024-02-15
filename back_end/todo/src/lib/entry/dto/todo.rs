@@ -1,3 +1,5 @@
+use crate::lib::entry::vo;
+
 use super::{Annex, Date, ITagProps, Priorities, Priority, Status, User};
 use rocket::serde::{Deserialize, Serialize};
 
@@ -59,6 +61,36 @@ impl Todo {
     }
     pub fn priority(&self) -> Priorities {
         self.priority.clone()
+    }
+    pub fn from(value: vo::Todo, owner: &str) -> (String, Self) {
+        let id = value.id().to_string();
+        let reviewers = value
+            .reviewers
+            .into_iter()
+            .map(|x| x.username().to_string())
+            .collect::<Vec<String>>();
+        let performers = value
+            .performers
+            .into_iter()
+            .map(|x| x.username().to_string())
+            .collect::<Vec<String>>();
+
+        let todo = Todo {
+            owner: owner.to_string(),
+            name: value.name,
+            priority: value.priority,
+            reviewers,
+            performers,
+            date: value.date,
+            tags: value.tags,
+            status: value.status,
+            description: value.description,
+            information: value.information,
+            annexs: value.annexs,
+            is_focus: value.is_focus,
+        };
+
+        (id, todo)
     }
 }
 
