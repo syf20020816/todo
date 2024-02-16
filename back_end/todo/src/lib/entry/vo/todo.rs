@@ -2,13 +2,7 @@ use crate::lib::{
     entry::dto::{self, Annex, Date, ITagProps, Priorities, Priority, Status},
     mapping::{select_todo_record, select_user_by_username},
 };
-use rocket::{
-    futures::{
-        executor::block_on,
-        future::{join, join_all},
-    },
-    serde::{Deserialize, Serialize},
-};
+use rocket::serde::{Deserialize, Serialize};
 
 use super::User;
 
@@ -134,7 +128,7 @@ impl TodoBox {
         let mut low = convert_ids_to_todo_instances(low).await;
         let mut mid = convert_ids_to_todo_instances(mid).await;
         let mut fatal = convert_ids_to_todo_instances(fatal).await;
-        let mut history = convert_ids_to_todo_instances(history).await;
+        let history = convert_ids_to_todo_instances(history).await;
         let mut focus = Vec::new();
         focus.append(&mut low.0);
         focus.append(&mut mid.0);

@@ -1,7 +1,10 @@
+mod team;
 mod todo;
 mod user;
+
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
+pub use team::*;
 pub use todo::*;
 pub use user::*;
 

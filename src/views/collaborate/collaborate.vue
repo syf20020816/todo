@@ -1,13 +1,21 @@
 <template>
   <div :id="buildView(component)">
     <div :class="buildWrap(component, 'teams')">
-      <div v-for="item in teamList" :key="item.id" class="team_wrapper">
-        <div class="team-avatar">
-          <img :src="useTeam(item.teamIcon)" alt="" class="teamIcons" />
+      <div v-if="teamList?.length" style="height: 100%; width: 100%">
+        <div v-for="(item, index) in teamList" :key="index" class="team_wrapper">
+          <div class="team-avatar">
+            <img :src="useTeam(item.avatar)" alt="" class="teamIcons" />
+          </div>
+          <div class="team-details">
+            <h5 class="name">{{ item.name }}</h5>
+            <p class="desc">{{ item.description }}</p>
+          </div>
         </div>
-        <div class="team-details">
-          <h5 class="name">{{ item.name }}</h5>
-          <p class="desc">{{ item.description }}</p>
+      </div>
+      <div v-else>
+        <h4>😅You currently do not have a team, please create it first</h4>
+        <div class="add-wrapper" @click="createNewTeam">
+          <div v-html="useSvg(SVGs.MENU_COLLABORATE, 32)"></div>
         </div>
       </div>
     </div>
@@ -29,14 +37,14 @@
         </div>
       </div>
       <div :class="buildWrap('details', 'panel')">
-        <Panel :member="currentMember"></Panel>
+        <Panel :member="currentMember" @create="createNewTeam"></Panel>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import Panel from "./components/panel.vue";
 import {
   AvatarMap,
@@ -51,40 +59,17 @@ import {
   useAvatar,
   useTeam,
 } from "../../core";
-import { Timeline } from "../plan";
+import api from "../../api";
+import { user as userPinia } from "../../store/src/user";
+import { SVGs, useSvg } from "../../components";
+import { ElMessage, ElMessageBox } from "element-plus";
 const component = "Collaborate";
+const userStore = userPinia();
 
-const teamList = reactive<
-  {
-    id: string;
-    name: string;
-    role: string;
-    teamIcon: TeamAvatars;
-    description: string;
-  }[]
->([
-  {
-    id: "0",
-    name: "Surrealism",
-    role: "Manager",
-    teamIcon: TeamAvatars.Team1,
-    description: "Surrealism is a SQL Builder",
-  },
-  {
-    id: "1",
-    name: "SurrealismUI",
-    role: "Manager",
-    teamIcon: TeamAvatars.Team2,
-    description: "Surrealism is a SQL Builder",
-  },
-  {
-    id: "2",
-    name: "Slimk",
-    role: "Watcher",
-    teamIcon: TeamAvatars.Team3,
-    description: "Surrealism is a SQL Builder",
-  },
-]);
+const teamList = computed(() => {
+  let { teams } = userStore.user;
+  return teams;
+});
 
 const memberList = reactive<
   {
@@ -99,14 +84,14 @@ const memberList = reactive<
     id: "0",
     name: "Surrealism",
     role: "Manager",
-    avatar: Avatars.Avatar1,
+    avatar: Avatars.Miner,
     email: "Surrealism is a SQL Builder",
   },
   {
     id: "1",
     name: "SurrealismUI",
     role: "Manager",
-    avatar: Avatars.Avatar3,
+    avatar: Avatars.Adventurer,
     email: "Surrealism is a SQL Builder",
   },
 ]);
@@ -121,6 +106,32 @@ const currentMember = ref<{
 
 const chooseMember = (item: any) => {
   currentMember.value = item;
+};
+const createNewTeam = () => {
+  ElMessageBox.prompt("create a new team for self", "Create Team", {
+    confirmButtonText: "Create",
+    cancelButtonText: "Cancel",
+    inputPlaceholder: "Please enter a new team name",
+  }).then(({ value }) => {
+    let name = value.trim();
+    if (name.length === 0) {
+      ElMessage({
+        type: "warning",
+        message: "Please do not enter an empty team name",
+      });
+      return;
+    }
+    api.team.createTeam(userStore.user.username, name).then((user) => {
+      console.log(user);
+      if (typeof user !== "undefined") {
+        userStore.setUser(user);
+      }
+      ElMessage({
+        type: "success",
+        message: "Team created successfully",
+      });
+    });
+  });
 };
 </script>
 

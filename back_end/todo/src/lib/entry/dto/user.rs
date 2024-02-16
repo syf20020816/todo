@@ -27,7 +27,7 @@ pub struct User {
     #[serde(rename(deserialize = "totalTodo"))]
     pub total_todo: u16,
     pub todos: TodoBox,
-    pub teams: Option<Vec<Team>>,
+    pub teams: Option<Vec<String>>,
     #[serde(rename(serialize = "sendEmail"))]
     #[serde(rename(deserialize = "sendEmail"))]
     pub send_email: bool,
@@ -82,6 +82,15 @@ impl User {
         let _ = self.todos.remove(id);
         // 将其加入到history中
         self.todos.history.push(id.to_string());
+    }
+    pub fn create_team(&mut self, id: &str) {
+        match &mut self.teams {
+            Some(teams) => teams.push(id.to_string()),
+            None => {
+                let _ = self.teams.replace(vec![id.to_string()]);
+            }
+        };
+        self.team_number += 1;
     }
 }
 

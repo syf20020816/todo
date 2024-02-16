@@ -4,7 +4,7 @@ use super::Record;
 use crate::lib::{
     db::DB,
     entry::{
-        dto::{Avatars, User},
+        dto::{Avatars, Team, User},
         vo::UserPersonalSetting,
     },
 };

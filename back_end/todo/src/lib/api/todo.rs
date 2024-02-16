@@ -1,9 +1,9 @@
-use rocket::{http::uri::Query, serde::json::Json};
+use rocket::serde::json::Json;
 
 use crate::lib::{
     entry::{
         dto::{Status, Todo, TodoBox},
-        vo::{self, convert_ids_to_todo_instances},
+        vo::{self},
     },
     error::Error,
     mapping::{

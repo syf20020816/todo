@@ -35,10 +35,10 @@ export const useTeam = (teamEnum: TeamAvatars) => {
 }
 
 export type Team = {
-  name: String
-  members: Array<User>
-  owner: User
+  name: string
+  members: Array<string>
+  owner: string
   avatar: TeamAvatars
-  description: String
+  description: string
   date: Date
 }

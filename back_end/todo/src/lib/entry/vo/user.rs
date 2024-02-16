@@ -79,6 +79,20 @@ impl User {
     pub async fn from(value: dto::User) -> Self {
         let todos = TodoBox::from(value.todos).await;
 
+        let teams = match value.teams {
+            Some(teams) => {
+                let mut results = vec![];
+                for team_id in teams {
+                    let res = Team::get(&team_id).await;
+                    if let Some((_, team)) = res {
+                        results.push(team);
+                    }
+                }
+                Some(results)
+            }
+            None => None,
+        };
+
         User {
             username: value.username,
             name: value.name,
@@ -88,7 +102,7 @@ impl User {
             todo_number: value.todo_number,
             total_todo: value.total_todo,
             todos: Some(todos),
-            teams: value.teams,
+            teams,
             send_email: value.send_email,
             send_msg: value.send_msg,
         }

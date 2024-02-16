@@ -1,6 +1,7 @@
 <template>
   <div id="team-panel-wrapper">
     <div class="panel-tool-wrapper">
+      <el-button type="primary" @click="createNewTeam">Create Team</el-button>
       <el-button type="primary">Add Member</el-button>
     </div>
     <div class="panel-member-detail-wrapper">
@@ -26,6 +27,12 @@ const props = defineProps<{
     email: string;
   };
 }>();
+
+const emits = defineEmits(["create"]);
+
+const createNewTeam = () => {
+  emits("create");
+};
 </script>
 
 <style lang="scss" scoped>
@@ -52,7 +59,7 @@ const props = defineProps<{
     border-radius: 4px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
   .panel-member-detail-wrapper {
     height: calc(320px - 32px);

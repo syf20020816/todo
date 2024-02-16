@@ -209,7 +209,7 @@ const userInfoList = computed(() => {
       value: user.avatar,
     },
     {
-      label: "TeamAvatars",
+      label: "TeamNumber",
       value: user.teamNumber,
     },
     {
@@ -246,10 +246,9 @@ const countSolve = computed(() => {
   return solveF;
 });
 
-const setTeamRole = computed(() => (owner: User) => {
-  let { username: ownername } = owner;
+const setTeamRole = computed(() => (owner: string) => {
   let { username } = userStore.user;
-  if (username === ownername) {
+  if (username === owner) {
     return "Manager";
   } else {
     return "Parter";
