@@ -71,7 +71,7 @@ const filterTodos = (date: Date) => {
 
 const getTODO = (data: any) => {
   let date = data.date;
-  console.log(date);
+  currentItem.value = undefined;
   filterTodos(date);
 };
 

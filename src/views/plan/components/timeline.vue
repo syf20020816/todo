@@ -21,6 +21,7 @@
             <p>{{ item.description }}</p>
             <div class="operation-btn-wrapper">
               <el-tag
+                style="margin: 0 6px"
                 v-for="tag in item.tags"
                 :key="tag.label"
                 :type="tag.type"

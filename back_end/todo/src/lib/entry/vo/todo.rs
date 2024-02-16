@@ -131,18 +131,21 @@ impl TodoBox {
             focus,
             history,
         } = value;
-        let low = convert_ids_to_todo_instances(low).await;
-        let mid = convert_ids_to_todo_instances(mid).await;
-        let fatal = convert_ids_to_todo_instances(fatal).await;
-        let focus = convert_ids_to_todo_instances(focus).await;
-        let history = convert_ids_to_todo_instances(history).await;
+        let mut low = convert_ids_to_todo_instances(low).await;
+        let mut mid = convert_ids_to_todo_instances(mid).await;
+        let mut fatal = convert_ids_to_todo_instances(fatal).await;
+        let mut history = convert_ids_to_todo_instances(history).await;
+        let mut focus = Vec::new();
+        focus.append(&mut low.0);
+        focus.append(&mut mid.0);
+        focus.append(&mut fatal.0);
 
         TodoBox {
-            low,
-            mid,
-            fatal,
+            low: low.1,
+            mid: mid.1,
+            fatal: fatal.1,
             focus,
-            history,
+            history: history.1,
         }
     }
 }
@@ -185,17 +188,23 @@ impl TodoBox {
 //     }
 // }
 
-pub async fn convert_ids_to_todo_instances(ids: Vec<String>) -> Vec<Todo> {
+//  focus       other
+//  (Vec<Todo>,Vec<Todo>)
+pub async fn convert_ids_to_todo_instances(ids: Vec<String>) -> (Vec<Todo>, Vec<Todo>) {
     if ids.is_empty() {
-        return Vec::new();
+        return (Vec::new(), Vec::new());
     }
     let mut res = Vec::new();
+    let mut focus = Vec::new();
     for id in ids {
         let query = select_todo_record(id.as_str()).await;
         if let Some((id, todo)) = query {
             let todo = Todo::from(todo, id).await;
+            if (todo.is_focus) {
+                focus.push(todo.clone())
+            }
             res.push(todo);
         }
     }
-    res
+    (focus, res)
 }
