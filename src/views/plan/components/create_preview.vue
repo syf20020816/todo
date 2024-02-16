@@ -17,12 +17,13 @@
       </div>
       <div class="work_wrapper">
         <el-button type="primary" @click="openAddDialog">Add New TODO</el-button>
-        <el-button type="danger">Remove All TODOs</el-button>
-        <el-button type="success">Complete All TODOs</el-button>
+        <!-- <el-button type="danger">Remove All TODOs</el-button>
+        <el-button type="success">Complete All TODOs</el-button> -->
       </div>
       <div class="todo_wrapper">
         <TODOItem
           v-if="isShow"
+          :is-change="true"
           :current-todo="currentTodo"
           @change="changeTodo"
           @delete="deleteTodo"

@@ -6,9 +6,9 @@
       </span>
       <div class="todo-name">{{ currentTodo.name }}</div>
       <el-button type="success" @click="completeTodo">✅complete</el-button>
-      <el-button type="warning" @click="changeTodo">change</el-button>
+      <el-button type="warning" @click="changeTodo" v-if="isChange">change</el-button>
       <el-button type="danger" @click="deleteTodo">❌discard</el-button>
-      <el-button type="info" @click="pendingTodo">🦥pending</el-button>
+      <el-button type="info" @click="pendingTodo" v-if="isPending">🦥pending</el-button>
     </div>
     <div class="details">
       <div class="left">
@@ -111,6 +111,7 @@ import { user as userPinia } from "../../../store/src/user";
 
 const props = defineProps<{
   currentTodo?: Todo;
+  isChange: boolean;
 }>();
 const userStore = userPinia();
 const emits = defineEmits(["change", "delete", "refresh"]);
@@ -175,6 +176,11 @@ const pendingTodo = async () => {
     emits("refresh", props.currentTodo?.id!);
   }
 };
+
+const isPending = computed(() => {
+  let status = props.currentTodo?.status;
+  return status !== Status.PENDING;
+});
 </script>
 
 <style lang="scss" scoped>

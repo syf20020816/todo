@@ -72,14 +72,17 @@ export enum Status {
   /**已完成 */
   COMPLETED = 'completed',
   /**阻塞中 */
-  PENDING = 'pending'
+  PENDING = 'pending',
+  /**失败 */
+  FAILED = 'failed'
 }
 
 const StatusTypeMap = new Map<Status, string>([
   [Status.NOT_START, '#ADAC9A'],
   [Status.IN_PROGRESS, '#56D4DD'],
   [Status.COMPLETED, '#8DDB80'],
-  [Status.PENDING, '#8EBAC7']
+  [Status.PENDING, '#8EBAC7'],
+  [Status.FAILED, '#FF5555']
 ])
 
 export const useStatus = (status: Status): string => {

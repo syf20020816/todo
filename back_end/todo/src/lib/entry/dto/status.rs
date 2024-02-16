@@ -15,6 +15,8 @@ pub enum Status {
     Completed,
     /// 阻塞中
     Pending,
+    /// 失败
+    Failed,
 }
 
 impl Default for Status {
@@ -50,6 +52,7 @@ impl<'de> Visitor<'de> for StatusVisitor {
             "in progress" => Ok(Status::InProgress),
             "completed" => Ok(Status::Completed),
             "pending" => Ok(Status::Pending),
+            "failed" => Ok(Status::Failed),
             _ => Err(rocket::serde::de::Error::invalid_value(
                 de::Unexpected::Str(&value),
                 &self,
@@ -74,6 +77,7 @@ impl Display for Status {
             Status::InProgress => "in progress",
             Status::Completed => "completed",
             Status::Pending => "pending",
+            Status::Failed => "failed",
         };
         f.write_str(res)
     }

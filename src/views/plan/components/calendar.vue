@@ -3,16 +3,19 @@
     <div class="left">
       <el-calendar>
         <template #date-cell="{ data }">
-          <p :class="data.isSelected ? 'is-selected' : ''" @click="getTODO(data)">
-            {{ data.day.split("-").slice(1).join("-") }}
-            {{ data.isSelected ? "🚩" : "" }}
-          </p>
+          <!-- 解决点击触发范围问题 -->
+          <div @click="getTODO(data)" style="height: 100%; width: 100%">
+            <p :class="data.isSelected ? 'is-selected' : ''">
+              {{ data.day.split("-").slice(1).join("-") }}
+              {{ data.isSelected ? "🚩" : "" }}
+            </p>
+          </div>
         </template>
       </el-calendar>
     </div>
     <div class="right">
-      <el-collapse accordion>
-        <el-collapse-item :name="item.id" v-for="item in props.datas" :key="item.id">
+      <el-collapse accordion v-if="todos?.length">
+        <el-collapse-item :name="item.id" v-for="item in todos" :key="item.id">
           <template #title>
             <div class="collapse-title-wrapper">
               <div>
@@ -24,25 +27,35 @@
                 ></span>
                 <span class="collapse-title">{{ item.name }}</span>
               </div>
-              <el-button type="danger" size="small">Remove TODO</el-button>
             </div>
           </template>
           <div style="height: 360px">
-            <TODOItem :current-todo="item"></TODOItem>
+            <TODOItem
+              :current-todo="item"
+              :is-change="false"
+              @refresh="refreshTodo"
+              @delete="refreshTodo"
+            ></TODOItem>
           </div>
         </el-collapse-item>
       </el-collapse>
+      <div v-else>
+        <h3>Wishing you a pleasant day</h3>
+        <p>There are no TODOs to be processed for the current date</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { Todo, Priorities, usePriorityColor, Status, useStatus } from "../../../core";
 import { TODOItem } from "../index";
-const props = defineProps<{ datas: Todo[] }>();
-const emits = defineEmits(["getTODOs"]);
 
+const props = defineProps<{ datas: Todo[] }>();
+const emits = defineEmits(["getDate"]);
+
+const todos = ref<Todo[]>();
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item;
   return `background-color : ${usePriorityColor(priority || Priorities.Low)}`;
@@ -53,11 +66,29 @@ const getStatusDot = computed(() => (item: Todo) => {
   return `background-color : ${useStatus(status)}`;
 });
 
-const getTODO = (data: any) => {
-  emits("getTODOs", {
-    date: data.day,
+const filterTodos = (date: Date) => {
+  let time = new Date(date.toLocaleDateString()).getTime();
+  todos.value = props.datas.filter((todo) => {
+    let end = new Date(new Date(todo.date.end).toLocaleDateString()).getTime();
+    let start = new Date(new Date(todo.date.start).toLocaleDateString()).getTime();
+
+    if (start <= time && end >= time) {
+      return true;
+    }
+    return false;
   });
 };
+
+const getTODO = (data: any) => {
+  let date = data.date;
+  console.log(date);
+  filterTodos(date);
+};
+
+const refreshTodo = (_id: string) => {
+  console.log(_id);
+};
+filterTodos(new Date());
 </script>
 
 <style lang="scss">
