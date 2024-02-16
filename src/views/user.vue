@@ -29,7 +29,7 @@
             :colors="['#409eff', '#FF9900', '#ff0000']"
             :score-template="busyTemplate"
           />
-          <el-button type="primary">Solve TODOs</el-button>
+          <el-button type="primary" @click="toPlan">Solve TODOs</el-button>
         </div>
       </div>
       <div class="info-details-list">
@@ -130,13 +130,16 @@ const router = useRouter();
 const userStore = user();
 const chosenAvatar = ref(userStore.user.avatar);
 const busyValue = computed(() => {
-  let { todos } = userStore.user;
-  let { fatal, focus, mid } = todos ?? {
+  let { todos, todoNumber } = userStore.user;
+  let { fatal, focus, mid, low } = todos ?? {
     fatal: [],
     focus: [],
     mid: [],
+    low: [],
   };
-  return fatal.length + mid.length;
+  let score = fatal.length * 5 + mid.length * 2 + low.length * 1;
+  let total = todoNumber * 5;
+  return (score / total) * 5;
 });
 const busyIcons = [Coffee, Platform, WarningFilled];
 
@@ -176,12 +179,10 @@ const changeAvatar = async () => {
 
 /**计算用户繁忙程度 */
 const busyTemplate = computed(() => {
-  let { todoNumber } = userStore.user;
-  let busy = busyValue.value / todoNumber;
   let msg = "Free";
-  if (busy >= 0.6) {
+  if (busyValue.value >= 4) {
     msg = "Busy";
-  } else if (busyValue.value >= 0.4) {
+  } else if (busyValue.value >= 2) {
     msg = "Moderate";
   }
   return `busy level: ${msg}!`;
@@ -261,6 +262,10 @@ const hasTeam = computed(() => {
 
 const toCollaborate = () => {
   router.push({ path: "collaborate" });
+};
+
+const toPlan = () => {
+  router.push({ path: "plan" });
 };
 </script>
 

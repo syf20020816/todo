@@ -237,21 +237,21 @@ const todoTag = ref<ITagProps>({
   label: ''
 })
 const changeTodoItem = ref<{
-  id:string,
-  owner:string
+  id: string
+  owner: string
 }>({
-  id:"",
-  owner:""
+  id: '',
+  owner: ''
 })
 const fileList = ref<UploadUserFile[]>([])
 
 const currentTodo = ref<any>()
-  const isShow = computed(()=>{
-    if(typeof currentTodo.value==='undefined'){
-      return false;
-    }
-    const empty= Object.keys(currentTodo.value).length === 0 && currentTodo.value.constructor === Object
-    return !empty;
+const isShow = computed(() => {
+  if (typeof currentTodo.value === 'undefined') {
+    return false
+  }
+  const empty = Object.keys(currentTodo.value).length === 0 && currentTodo.value.constructor === Object
+  return !empty
 })
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low
@@ -262,18 +262,18 @@ const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START
   return `background-color : ${useStatus(status)}`
 })
-const dialogTitle = computed(()=>{
-  if(isChange.value){
-    return "Change Todo"
+const dialogTitle = computed(() => {
+  if (isChange.value) {
+    return 'Change Todo'
   }
-  return "Add New Todo"
+  return 'Add New Todo'
 })
 
-const dialogBtn = computed(()=>{
-  if(isChange.value){
-    return "Change"
+const dialogBtn = computed(() => {
+  if (isChange.value) {
+    return 'Change'
   }
-  return "Add"
+  return 'Add'
 })
 
 const showTodoDetails = (item: Todo) => {
@@ -318,8 +318,8 @@ interface TodoRuleForm {
   description: string
   information: string
   annexs: Array<{
-    name:string,
-    data:string
+    name: string
+    data: string
   }>
   isFocus: boolean
 }
@@ -390,31 +390,30 @@ const convertTodo = (): Todo => {
 }
 
 const addNewTodo = async (formEl: FormInstance | undefined) => {
-
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      let todo = convertTodo();
-      if(isChange.value){
-        Object.assign(todo,{owner:changeTodoItem.value.owner??""})
+      let todo = convertTodo()
+      if (isChange.value) {
+        Object.assign(todo, { owner: changeTodoItem.value.owner ?? '' })
         console.log(todo)
         const data = await api.todo.updateTodo(userStore.user.username, changeTodoItem.value.id, todo)
         if (typeof data !== 'undefined') {
-        ElMessage({
-          type: 'success',
-          message: 'Update Todo successfully'
-        })
-        userStore.setUser(data)
-      }
-      }else{
+          ElMessage({
+            type: 'success',
+            message: 'Update Todo successfully'
+          })
+          userStore.setUser(data)
+        }
+      } else {
         const data = await api.todo.addNewTodo(todo)
-      if (typeof data !== 'undefined') {
-        ElMessage({
-          type: 'success',
-          message: 'Create new Todo successfully'
-        })
-        userStore.setUser(data)
-      }
+        if (typeof data !== 'undefined') {
+          ElMessage({
+            type: 'success',
+            message: 'Create new Todo successfully'
+          })
+          userStore.setUser(data)
+        }
       }
     } else {
       console.log('error submit!', fields)
@@ -427,14 +426,14 @@ const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFile
   if (typeof file !== 'undefined') {
     convertFileToBase64(file).then(base64 => {
       todoForm.annexs.push({
-        name:uploadFile.name,
-        data:base64
+        name: uploadFile.name,
+        data: base64
       })
     })
   }
 }
 
-const openAddDialog = ()=>{
+const openAddDialog = () => {
   addTodoVisible.value = true
   isChange.value = false
 }
@@ -479,19 +478,18 @@ const removeTag = (tag: ITagProps) => {
   todoForm.tags = todoForm.tags.filter(item => item !== tag)
 }
 
-
-const changeTodo = (todo:Todo)=>{
-  todoForm.name = todo.name;
-  todoForm.description = todo.description??"";
-  todoForm.tags = todo.tags;
-  todoForm.information = todo.information??"";
-  todoForm.date = [new Date(todo.date.start),new Date(todo.date.end)];
-  todoForm.isFocus = todo.isFocus;
-  todoForm.priority = todo.priority;
-  todoForm.annexs = todo.annexs?? []
-  addTodoVisible.value = true;
-  isChange.value = true;
-  changeTodoItem.value.id =todo.id!;
+const changeTodo = (todo: Todo) => {
+  todoForm.name = todo.name
+  todoForm.description = todo.description ?? ''
+  todoForm.tags = todo.tags
+  todoForm.information = todo.information ?? ''
+  todoForm.date = [new Date(todo.date.start), new Date(todo.date.end)]
+  todoForm.isFocus = todo.isFocus
+  todoForm.priority = todo.priority
+  todoForm.annexs = todo.annexs ?? []
+  addTodoVisible.value = true
+  isChange.value = true
+  changeTodoItem.value.id = todo.id!
   changeTodoItem.value.owner = todo.owner
 }
 
@@ -499,12 +497,12 @@ const deleteTodo = () => {
   currentTodo.value = {}
 }
 
-const removeUploadFile = (file:{name:string,data:string}) =>{
-  todoForm.annexs = todoForm.annexs.filter(f=>f.name!==file.name)
+const removeUploadFile = (file: { name: string; data: string }) => {
+  todoForm.annexs = todoForm.annexs.filter(f => f.name !== file.name)
 }
 
-const refreshTodo = (_id:string)=>{
-  currentTodo.value = {};
+const refreshTodo = (_id: string) => {
+  currentTodo.value = {}
 }
 </script>
 

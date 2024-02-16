@@ -14,25 +14,13 @@
       <div class="left">
         <div class="tags">
           tag :
-          <el-tag
-            v-for="tag in currentTodo.tags"
-            :key="tag.label"
-            :type="tag.type"
-            size="small"
-            class="mx-tag"
-            round
-            :effect="tag.effect"
-          >
+          <el-tag v-for="tag in currentTodo.tags" :key="tag.label" :type="tag.type" size="small" class="mx-tag" round :effect="tag.effect">
             {{ tag.label }}
           </el-tag>
         </div>
         <div class="reviews">
           <div style="text-align: left">Reviews:</div>
-          <div
-            class="review-item"
-            v-for="(review, index) in currentTodo.reviewers"
-            :key="index"
-          >
+          <div class="review-item" v-for="(review, index) in currentTodo.reviewers" :key="index">
             <img class="review-avatar" :src="useAvatar(review.avatar)" alt="" />
             <div class="review-info">
               <div class="name">{{ review.name }}</div>
@@ -42,11 +30,7 @@
         </div>
         <div class="reviews">
           <div style="text-align: left">Performers:</div>
-          <div
-            class="review-item"
-            v-for="(performer, index) in currentTodo.performers"
-            :key="index"
-          >
+          <div class="review-item" v-for="(performer, index) in currentTodo.performers" :key="index">
             <img class="review-avatar" :src="useAvatar(performer.avatar)" alt="" />
             <div class="review-info">
               <div class="name">{{ performer.name }}</div>
@@ -57,21 +41,12 @@
       </div>
       <div class="right">
         <div class="date">
-          <div style="text-align: left">
-            DateTime : {{ currentTodo.date.start }} ~ {{ currentTodo.date.end }}
-          </div>
-          <div style="text-align: right">
-            During : {{ countDuring(currentTodo.date.during) }}
-          </div>
+          <div style="text-align: left">DateTime : {{ currentTodo.date.start }} ~ {{ currentTodo.date.end }}</div>
+          <div style="text-align: right">During : {{ countDuring(currentTodo.date.during) }}</div>
         </div>
         <div class="status">
           <span style="margin-right: 6px">Status :</span>
-          <el-tag
-            round
-            :color="useStatus(currentTodo.status)"
-            class="mx-tag"
-            effect="dark"
-          >
+          <el-tag round :color="useStatus(currentTodo.status)" class="mx-tag" effect="dark">
             {{ currentTodo.status }}
           </el-tag>
         </div>
@@ -81,12 +56,7 @@
         </div>
         <div class="more">
           <span>Annex and Details :</span>
-          <el-button
-            type="default"
-            v-if="currentTodo.annexs?.length !== 0"
-            @click="downloadAnnexs"
-            >Download</el-button
-          >
+          <el-button type="default" v-if="currentTodo.annexs?.length !== 0" @click="downloadAnnexs">Download</el-button>
         </div>
       </div>
     </div>
@@ -94,97 +64,88 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from "vue";
-import {
-  Todo,
-  Priorities,
-  usePriorityColor,
-  useAvatar,
-  useStatus,
-  downloadBlob,
-  base64ToBlob,
-  Status,
-} from "../../../core";
-import api from "../../../api";
-import { ElMessage } from "element-plus";
-import { user as userPinia } from "../../../store/src/user";
+import { ref, reactive, computed } from 'vue'
+import { Todo, Priorities, usePriorityColor, useAvatar, useStatus, downloadBlob, base64ToBlob, Status } from '../../../core'
+import api from '../../../api'
+import { ElMessage } from 'element-plus'
+import { user as userPinia } from '../../../store/src/user'
 
 const props = defineProps<{
-  currentTodo?: Todo;
-  isChange: boolean;
-}>();
-const userStore = userPinia();
-const emits = defineEmits(["change", "delete", "refresh"]);
+  currentTodo?: Todo
+  isChange: boolean
+}>()
+const userStore = userPinia()
+const emits = defineEmits(['change', 'delete', 'refresh'])
 
 const getPriorityDot = computed(() => (item: Todo) => {
-  let { priority } = item || Priorities.Low;
-  return `background-color : ${usePriorityColor(priority)}`;
-});
+  let { priority } = item || Priorities.Low
+  return `background-color : ${usePriorityColor(priority)}`
+})
 
 const countDuring = (timestamp: number): string => {
-  return `${(timestamp / 1000 / 60 / 60).toFixed(2)} h`;
-};
+  return `${(timestamp / 1000 / 60 / 60).toFixed(2)} h`
+}
 
 const downloadAnnexs = () => {
-  props.currentTodo?.annexs?.forEach((annex) => {
-    let contentType = annex.data.split(";base64,")[0].replace("data:", "");
-    let blob = base64ToBlob(annex.data, contentType);
-    downloadBlob(blob, annex.name);
-  });
-};
+  props.currentTodo?.annexs?.forEach(annex => {
+    let contentType = annex.data.split(';base64,')[0].replace('data:', '')
+    let blob = base64ToBlob(annex.data, contentType)
+    downloadBlob(blob, annex.name)
+  })
+}
 
 const completeTodo = async () => {
   // 状态修改为完成
   // 将其移动到历史中
-  let id = props.currentTodo!.id!;
-  const data = await api.todo.completedTodo(userStore.user.username, id);
-  if (typeof data !== "undefined") {
+  let id = props.currentTodo!.id!
+  const data = await api.todo.completedTodo(userStore.user.username, id)
+  if (typeof data !== 'undefined') {
     ElMessage({
-      type: "success",
-      message: "Complete Todo successfully",
-    });
-    userStore.setUser(data);
+      type: 'success',
+      message: 'Complete Todo successfully'
+    })
+    userStore.setUser(data)
   }
-  emits("refresh", props.currentTodo?.id!);
-};
+  emits('refresh', props.currentTodo?.id!)
+}
 const changeTodo = () => {
-  emits("change", props.currentTodo);
-};
+  emits('change', props.currentTodo)
+}
 const deleteTodo = async () => {
-  let id = props.currentTodo!.id!;
-  const data = await api.todo.deleteTodo(userStore.user.username, id);
-  if (typeof data !== "undefined") {
+  let id = props.currentTodo!.id!
+  const data = await api.todo.deleteTodo(userStore.user.username, id)
+  if (typeof data !== 'undefined') {
     ElMessage({
-      type: "success",
-      message: "Delete Todo successfully",
-    });
-    userStore.setUser(data);
+      type: 'success',
+      message: 'Delete Todo successfully'
+    })
+    userStore.setUser(data)
   }
-  emits("delete");
-};
+  emits('delete')
+}
 
 const pendingTodo = async () => {
-  let id = props.currentTodo!.id!;
-  const data = await api.todo.updateTodoStatus(id, Status.PENDING);
+  let id = props.currentTodo!.id!
+  const data = await api.todo.updateTodoStatus(id, Status.PENDING)
   if (data) {
     ElMessage({
-      type: "success",
-      message: "Pending TODO successfully",
-    });
-    const user = await api.user.getUserInfo(userStore.user.username);
-    userStore.setUser(user!);
-    emits("refresh", props.currentTodo?.id!);
+      type: 'success',
+      message: 'Pending TODO successfully'
+    })
+    const user = await api.user.getUserInfo(userStore.user.username)
+    userStore.setUser(user!)
+    emits('refresh', props.currentTodo?.id!)
   }
-};
+}
 
 const isPending = computed(() => {
-  let status = props.currentTodo?.status;
-  return status !== Status.PENDING;
-});
+  let status = props.currentTodo?.status
+  return status !== Status.PENDING
+})
 </script>
 
 <style lang="scss" scoped>
-@use "../../../styles/src/var.scss" as *;
+@use '../../../styles/src/var.scss' as *;
 .todo {
   color: $bg-color-light;
   height: 100%;

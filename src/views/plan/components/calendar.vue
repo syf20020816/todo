@@ -92,7 +92,7 @@ filterTodos(new Date());
 </script>
 
 <style lang="scss">
-@use "../../../styles/src/var.scss" as *;
+@use '../../../styles/src/var.scss' as *;
 #calendar-view {
   height: 100%;
   width: 100%;
@@ -136,6 +136,8 @@ filterTodos(new Date());
     padding: 0 6px;
     box-sizing: border-box;
     border-left: 1px dashed $bg-color-hover;
+    overflow-y: scroll;
+    scrollbar-width: thin;
     .priority {
       display: inline-block;
       height: 12px;

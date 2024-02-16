@@ -36,39 +36,19 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column align="right" width="200px" fixed="right">
+      <el-table-column align="right" width="120px" fixed="right">
         <template #header>
           <span>Operation</span>
-        </template>
-        <template #default="scope">
-          <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
-            >Edit</el-button
-          >
-          <el-button
-            size="small"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            >Delete</el-button
-          >
         </template>
       </el-table-column>
       <el-table-column type="expand" fixed="right">
         <template #default="props">
           <div class="expand-table-wrapper">
-            <TODOItem :current-todo="props.row"></TODOItem>
+            <TODOItem :current-todo="props.row" :is-change="false"></TODOItem>
           </div>
         </template>
       </el-table-column>
     </el-table>
-    <div class="table-pagination-wrapper">
-      <el-pagination
-        background
-        :page-size="20"
-        :pager-count="11"
-        layout="prev, pager, next"
-        :total="1000"
-      />
-    </div>
   </div>
 </template>
 
@@ -79,15 +59,6 @@ import { TODOItem } from "../index";
 const props = defineProps<{
   datas: Todo[];
 }>();
-
-const search = ref("");
-
-const handleEdit = (index: number, row: any) => {
-  console.log(index, row);
-};
-const handleDelete = (index: number, row: any) => {
-  console.log(index, row);
-};
 
 const getReviewerName = computed(() => (row: any, index: number) => {
   return row.reviewers[index]?.name ?? "";
@@ -115,7 +86,8 @@ const getTags = computed(() => (row: any, _index: number): {
 </script>
 
 <style lang="scss">
-@use "../../../styles/src/var.scss" as *;
+@use '../../../styles/src/var.scss' as *;
+
 #table-view {
   box-sizing: border-box;
   height: 100%;
@@ -126,6 +98,7 @@ const getTags = computed(() => (row: any, _index: number): {
   overflow-y: scroll;
   scrollbar-width: thin;
   flex-wrap: wrap;
+
   // 覆盖el-table默认颜色
   // 注意：这里覆盖了element-plus的样式，如果需要使用element-plus的样式，需要将element-plus的样式覆盖
   // 例如：@import "element-plus/theme-chalk/src/common/var.scss";
@@ -140,27 +113,24 @@ const getTags = computed(() => (row: any, _index: number): {
     --el-table-text-color: #fff;
     --el-table-header-text-color: #bfbfbf;
     --el-table-expanded-cell-bg-color: #252423;
+
     .el-table__body-wrapper tr td.el-table-fixed-column--left {
       background: #3b3a39;
     }
+
     .el-table__body-wrapper tr td.el-table-fixed-column--right {
       background: #3b3a39;
     }
   }
+
   .expand-table-wrapper {
-    width: calc(100% - 120px);
+    width: calc(100% - 240px);
     display: flex;
+    min-width: 620px;
     align-items: center;
     box-sizing: border-box;
     padding: 16px;
     justify-content: center;
-  }
-  .table-pagination-wrapper {
-    position: fixed;
-    bottom: 6px;
-    right: 6px;
-    z-index: 11;
-    background-color: #11100f;
   }
 }
 </style>

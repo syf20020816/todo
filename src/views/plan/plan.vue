@@ -61,15 +61,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
-import { Avatars, buildView, Priorities, Status, Todo } from "../../core";
-import { SVGs, useSvg } from "../../components";
-import { CreatePreview, Calendar, Timeline, Table } from "./index";
-import { user as userPinia } from "../../store/src/user";
-const component = "Plan";
-const userStore = userPinia();
+import { ref, reactive } from 'vue'
+import { Avatars, buildView, Priorities, Status, Todo } from '../../core'
+import { SVGs, useSvg } from '../../components'
+import { CreatePreview, Calendar, Timeline, Table } from './index'
+import { user as userPinia } from '../../store/src/user'
+const component = 'Plan'
+const userStore = userPinia()
 </script>
 
 <style lang="scss">
-@import "../../styles/views/plan.scss";
+@import '../../styles/views/plan.scss';
 </style>

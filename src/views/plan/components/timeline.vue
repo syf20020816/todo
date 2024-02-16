@@ -20,16 +20,24 @@
             </h4>
             <p>{{ item.description }}</p>
             <div class="operation-btn-wrapper">
-              <el-button type="success">✅Complete TODO</el-button>
-              <el-button type="warning">🦥Delay</el-button>
-              <el-button type="danger">❗Remove TODO</el-button>
+              <el-tag
+                v-for="tag in item.tags"
+                :key="tag.label"
+                :type="tag.type"
+                size="small"
+                class="mx-tag"
+                round
+                :effect="tag.effect"
+              >
+                {{ tag.label }}
+              </el-tag>
             </div>
           </el-card>
         </el-timeline-item>
       </el-timeline>
     </div>
     <div class="right">
-      <TODOItem :current-todo="currentTodo"></TODOItem>
+      <TODOItem :current-todo="currentTodo" :is-change="false"></TODOItem>
     </div>
   </div>
 </template>
@@ -64,6 +72,7 @@ const getStatusDot = computed(() => (item: Todo) => {
   justify-content: space-between;
   .left {
     width: 50%;
+    height: 100%;
     box-sizing: border-box;
     padding-right: 12px;
     overflow-y: scroll;
