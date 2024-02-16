@@ -6,19 +6,44 @@
     <span class="title">MY <span class="clip">TODO</span></span>
     <!-- 搜索框 -->
     <div class="search-wrap">
-      <el-input
-        v-if="userStore.isSignIn"
-        v-model="searchValue"
-        placeholder="Search TODOs"
-        class="input-with-select"
-      >
-        <template #prepend>
-          <div>TODO</div>
+      <el-popover placement="bottom" :width="600" :visible="showSearch">
+        <template #reference>
+          <el-input
+            v-if="userStore.isSignIn"
+            v-model="searchValue"
+            placeholder="Search TODOs"
+            class="input-with-select"
+          >
+            <template #prepend>
+              <div>TODO</div>
+            </template>
+            <template #append>
+              <el-button :icon="Search" @click="onSearch" />
+            </template>
+          </el-input>
         </template>
-        <template #append>
-          <el-button :icon="Search" @click="onSearch" />
-        </template>
-      </el-input>
+        <div class="search-result-wrapper">
+          <header class="header">
+            <h4>Search Result:</h4>
+            <el-icon @click="showSearch = false"><CircleClose /></el-icon>
+          </header>
+          <center class="center">
+            <div
+              v-for="item in searchResults"
+              :key="item.name"
+              class="search-item-wrapper"
+            >
+              <div class="name">
+                <span><strong>TODO Name</strong>: {{ item.name }}</span>
+              </div>
+              <div class="item-des-wrapper">
+                <p>TODO Description:{{ item.description }}</p>
+                <div>TODO Date:{{ item.date.start }} ~ {{ item.date.end }}</div>
+              </div>
+            </div>
+          </center>
+        </div>
+      </el-popover>
     </div>
     <!-- 右侧工具栏 -->
     <div :class="buildWrap(component, 'right-wrap')">
@@ -141,12 +166,12 @@
 <script lang="ts" setup>
 import { Search } from '@element-plus/icons-vue'
 import { ref, reactive, defineComponent, computed } from 'vue'
-import { buildView, buildWrap, UserInfoChangeForm } from '../../core'
+import { buildView, buildWrap, Todo, UserInfoChangeForm } from '../../core'
 import { SVGs, useSvg,Notice } from '../index'
 import { user } from '../../store/src/user'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 
-import { InfoFilled } from '@element-plus/icons-vue'
+import { InfoFilled,CircleClose  } from '@element-plus/icons-vue'
 import api from '../../api'
 
 const component = 'Header'
@@ -157,13 +182,15 @@ defineComponent({
 const userStore = user()
 const searchValue = ref('')
 const settingDrawer = ref(false)
-
+const showSearch = ref(false)
 /**
  * 计算得出用户头像
  */
 const userAvatar = computed(() => {
   return userStore.useAvatar(userStore.user.avatar)
 })
+
+const searchResults = ref<Todo[]>([])
 
 /**
  * 查询待办项事件
@@ -172,6 +199,9 @@ const onSearch = () => {
   //去除字符串前后空格
   const formatSearchValue = searchValue.value.trim()
   console.log(formatSearchValue)
+  let {todos} = userStore
+  searchResults.value =  todos.filter(todo=>todo.name.includes(formatSearchValue) )
+  showSearch.value = true;
 }
 
 const openSetting = () => {
