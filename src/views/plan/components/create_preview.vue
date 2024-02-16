@@ -395,7 +395,8 @@ const addNewTodo = async (formEl: FormInstance | undefined) => {
     if (valid) {
       let todo = convertTodo();
       if(isChange.value){
-        Object.assign(todo,{owner:changeTodoItem.value.owner})
+        Object.assign(todo,{owner:changeTodoItem.value.owner??""})
+        console.log(todo)
         const data = await api.todo.updateTodo(userStore.user.username, changeTodoItem.value.id, todo)
         if (typeof data !== 'undefined') {
         ElMessage({

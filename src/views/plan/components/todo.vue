@@ -132,7 +132,20 @@ const downloadAnnexs = () => {
   });
 };
 
-const completeTodo = () => {};
+const completeTodo = async () => {
+  // 状态修改为完成
+  // 将其移动到历史中
+  let id = props.currentTodo!.id!;
+  const data = await api.todo.completedTodo(userStore.user.username, id);
+  if (typeof data !== "undefined") {
+    ElMessage({
+      type: "success",
+      message: "Complete Todo successfully",
+    });
+    userStore.setUser(data);
+  }
+  emits("refresh", props.currentTodo?.id!);
+};
 const changeTodo = () => {
   emits("change", props.currentTodo);
 };

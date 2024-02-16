@@ -34,7 +34,7 @@ export const updateTodoStatus = async (id: String, status: Status): Promise<bool
   return data
 }
 
-export const unCompletedTodo = async (username: string, todo: Todo) => {
-  const { data } = await request.post('/todo/unCompleted/' + username, todo)
+export const completedTodo = async (username: string, todoId: string): Promise<ApiResponse<User>> => {
+  const { data } = await request.get('/todo/complete/' + username + '/' + todoId)
   return data
 }

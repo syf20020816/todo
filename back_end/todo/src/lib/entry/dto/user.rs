@@ -76,6 +76,13 @@ impl User {
         self.total_todo -= 1;
         self.todos.remove(id);
     }
+    pub fn complete_todo(&mut self, id: &str) {
+        self.todo_number -= 1;
+        // 从需要执行的TODO列表中移除
+        let _ = self.todos.remove(id);
+        // 将其加入到history中
+        self.todos.history.push(id.to_string());
+    }
 }
 
 impl Default for User {

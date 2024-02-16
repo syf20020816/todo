@@ -2,7 +2,7 @@ use rocket::{http::uri::Query, serde::json::Json};
 
 use crate::lib::{
     entry::{
-        dto::{Todo, TodoBox},
+        dto::{Status, Todo, TodoBox},
         vo::{self, convert_ids_to_todo_instances},
     },
     error::Error,
@@ -82,8 +82,26 @@ pub async fn update_todo_status(id: &str, status: &str) -> ResultJsonData<bool> 
     let (e_code, e_msg) = e.get();
     return ResultJsonData::define_failure(e_code, &e_msg);
 }
-// #[post("/unCompleted/<username>", format = "application/json", data = "<todo>")]
-// pub async fn uncomplete_todo(username: &str,todo:Json<vo::Todo>)->ResultJsonData<>
+
+#[get("/complete/<username>/<id>")]
+pub async fn complete_todo(username: &str, id: &str) -> ResultJsonData<vo::User> {
+    let status = Status::Completed.to_string();
+    let (code, _update_status) = update_todo_status(id, &status).await.get();
+    if code == 200 {
+        let user_query = select_user_by_username(username).await;
+        if let Some(mut user) = user_query {
+            let _ = user.complete_todo(id);
+            let query = update_user_by_username(user).await;
+            if let Some(user) = query {
+                let user = vo::User::from(user).await;
+                return ResultJsonData::success(user);
+            }
+        }
+    }
+    let e = Error::CompleteTodo;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
+}
 
 #[get("/ho")]
 pub async fn ho() -> ResultJsonData<bool> {

@@ -12,6 +12,7 @@ pub enum Error {
     CreateTodo,
     DeleteTodo,
     UpdateTodo,
+    CompleteTodo,
 }
 
 impl Error {
@@ -25,6 +26,7 @@ impl Error {
             Error::CreateTodo => (1101, self.to_string()),
             Error::DeleteTodo => (1102, self.to_string()),
             Error::UpdateTodo => (1103, self.to_string()),
+            Error::CompleteTodo => (1104, self.to_string()),
         }
     }
 }
@@ -42,6 +44,7 @@ impl Display for Error {
             Error::CreateTodo => "Create a new todo failed",
             Error::DeleteTodo => "Delete todo failed",
             Error::UpdateTodo => "Update todo failed",
+            Error::CompleteTodo => "Complete todo failed",
         };
         f.write_str(alert_msg)
     }

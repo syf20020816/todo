@@ -61,6 +61,9 @@ impl<T: Serialize> ResultJsonData<T> {
             msg: msg.to_string(),
         }
     }
+    pub fn get(self) -> (u16, Option<T>) {
+        (self.code, self.data)
+    }
 }
 
 #[catch(500)]

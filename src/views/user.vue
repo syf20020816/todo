@@ -131,11 +131,12 @@ const userStore = user();
 const chosenAvatar = ref(userStore.user.avatar);
 const busyValue = computed(() => {
   let { todos } = userStore.user;
-  let { fatal, focus } = todos ?? {
+  let { fatal, focus, mid } = todos ?? {
     fatal: [],
     focus: [],
+    mid: [],
   };
-  return fatal.length + focus.length;
+  return fatal.length + mid.length;
 });
 const busyIcons = [Coffee, Platform, WarningFilled];
 
@@ -233,45 +234,13 @@ const userInfoList = computed(() => {
   ];
 });
 
-const teamList = reactive<
-  {
-    id: string;
-    name: string;
-    role: string;
-    teamIcon: TeamAvatars;
-    description: string;
-  }[]
->([
-  {
-    id: "0",
-    name: "Surrealism",
-    role: "Manager",
-    teamIcon: TeamAvatars.Team1,
-    description: "Surrealism is a SQL Builder",
-  },
-  {
-    id: "1",
-    name: "SurrealismUI",
-    role: "Manager",
-    teamIcon: TeamAvatars.Team2,
-    description: "Surrealism is a SQL Builder",
-  },
-  {
-    id: "2",
-    name: "Slimk",
-    role: "Watcher",
-    teamIcon: TeamAvatars.Team3,
-    description: "Surrealism is a SQL Builder",
-  },
-]);
-
 const countSolve = computed(() => {
   let { todoNumber, totalTodo } = userStore.user;
   if (todoNumber === 0 || totalTodo === 0) {
     return 100;
   }
-  let solve = (1 - todoNumber / todoNumber).toFixed(2);
-  console.log(todoNumber / totalTodo);
+  let solve = (1 - todoNumber / totalTodo).toFixed(2);
+
   let solveF = parseFloat(solve) * 100;
   return solveF;
 });
