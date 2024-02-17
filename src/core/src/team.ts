@@ -35,8 +35,9 @@ export const useTeam = (teamEnum: TeamAvatars) => {
 }
 
 export type Team = {
+  id: string
   name: string
-  members: Array<string>
+  members: Array<User>
   owner: string
   avatar: TeamAvatars
   description: string

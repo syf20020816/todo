@@ -1,8 +1,13 @@
 <template>
   <div :id="buildView(component)">
     <div :class="buildWrap(component, 'teams')">
-      <div v-if="teamList?.length" style="height: 100%; width: 100%">
-        <div v-for="(item, index) in teamList" :key="index" class="team_wrapper">
+      <div v-if="userStore.user.teams?.length" style="height: 100%; width: 100%">
+        <div
+          v-for="(item, index) in userStore.user.teams"
+          :key="index"
+          class="team_wrapper"
+          @click="currentTeam = item"
+        >
           <div class="team-avatar">
             <img :src="useTeam(item.avatar)" alt="" class="teamIcons" />
           </div>
@@ -21,23 +26,33 @@
     </div>
     <div :class="buildWrap(component, 'details')">
       <div :class="buildWrap('details', 'team-member')">
-        <div
-          class="team-member-wrapper"
-          v-for="item in memberList"
-          :key="item.id"
-          @click="chooseMember(item)"
-        >
-          <div class="team-avatar">
-            <img :src="useAvatar(item.avatar)" alt="" class="teamIcons" />
+        <div v-if="currentTeam" style="height: 100%; width: 100%">
+          <div
+            class="team-member-wrapper"
+            v-for="item in currentTeam?.members"
+            :key="item.username"
+            @click="chooseMember(item)"
+          >
+            <div class="team-avatar">
+              <img :src="useAvatar(item.avatar)" alt="" class="teamIcons" />
+            </div>
+            <div class="team-details">
+              <h5 class="name">{{ item.name }}</h5>
+              <p class="desc">{{ item.email }}</p>
+            </div>
           </div>
-          <div class="team-details">
-            <h5 class="name">{{ item.name }}</h5>
-            <p class="desc">{{ item.email }}</p>
-          </div>
+        </div>
+        <div v-else>
+          <h4>You can choose a team and get team members</h4>
         </div>
       </div>
       <div :class="buildWrap('details', 'panel')">
-        <Panel :member="currentMember" @create="createNewTeam"></Panel>
+        <Panel
+          :data="currentTeam"
+          @create="createNewTeam"
+          @add="addMember"
+          :add-member-disabled="addMemberDisabled"
+        ></Panel>
       </div>
     </div>
   </div>
@@ -58,6 +73,7 @@ import {
   buildWrap,
   useAvatar,
   useTeam,
+  Team,
 } from "../../core";
 import api from "../../api";
 import { user as userPinia } from "../../store/src/user";
@@ -66,47 +82,17 @@ import { ElMessage, ElMessageBox } from "element-plus";
 const component = "Collaborate";
 const userStore = userPinia();
 
-const teamList = computed(() => {
-  let { teams } = userStore.user;
-  return teams;
+const currentTeam = ref<Team>();
+const currentMember = ref();
+
+const addMemberDisabled = computed(() => {
+  return typeof currentTeam.value === "undefined";
 });
-
-const memberList = reactive<
-  {
-    id: string;
-    name: string;
-    role: string;
-    avatar: Avatars;
-    email: string;
-  }[]
->([
-  {
-    id: "0",
-    name: "Surrealism",
-    role: "Manager",
-    avatar: Avatars.Miner,
-    email: "Surrealism is a SQL Builder",
-  },
-  {
-    id: "1",
-    name: "SurrealismUI",
-    role: "Manager",
-    avatar: Avatars.Adventurer,
-    email: "Surrealism is a SQL Builder",
-  },
-]);
-
-const currentMember = ref<{
-  id: string;
-  name: string;
-  role: string;
-  avatar: Avatars;
-  email: string;
-}>(memberList[0]);
 
 const chooseMember = (item: any) => {
   currentMember.value = item;
 };
+
 const createNewTeam = () => {
   ElMessageBox.prompt("create a new team for self", "Create Team", {
     confirmButtonText: "Create",
@@ -131,6 +117,54 @@ const createNewTeam = () => {
         message: "Team created successfully",
       });
     });
+  });
+};
+
+const addMember = () => {
+  ElMessageBox.prompt("add new team member", "Add Member", {
+    confirmButtonText: "Add",
+    cancelButtonText: "Cancel",
+    inputPlaceholder: "Please enter member's username",
+  }).then(({ value }) => {
+    let name = value.trim();
+    if (name.length === 0) {
+      ElMessage({
+        type: "warning",
+        message: "Please do not enter an empty member username",
+      });
+      return;
+    }
+
+    let members = currentTeam.value?.members;
+
+    if (members?.filter((member) => member.username === name).length !== 0) {
+      ElMessage({
+        type: "warning",
+        message: "The current user already exists",
+      });
+      return;
+    }
+
+    api.team
+      .updateTeamMember(name, currentTeam.value!)
+      .then((update) => {
+        if (update) {
+          api.user.getUserInfo(userStore.user.username).then((user) => {
+            userStore.setUser(user!);
+            currentTeam.value = undefined;
+          });
+          ElMessage({
+            type: "success",
+            message: "Add member successfully",
+          });
+        } else {
+          ElMessage({
+            type: "error",
+            message: "Add member failed, please check member's username",
+          });
+        }
+      })
+      .catch(() => {});
   });
 };
 </script>

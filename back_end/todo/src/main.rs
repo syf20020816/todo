@@ -5,7 +5,7 @@ extern crate rocket;
 
 use lib::api::{
     complete_todo, create_team, create_todo, delete_todo, get_user_info, set_user_avatar,
-    set_user_setting, signin, signup, update_todo, update_todo_status,
+    set_user_setting, signin, signup, update_team_members, update_todo, update_todo_status,
 };
 use lib::cors::init_cors;
 use lib::db::db_init;
@@ -38,6 +38,6 @@ async fn rocket() -> _ {
                 complete_todo
             ],
         )
-        .mount("/api/v1/team", routes![create_team])
+        .mount("/api/v1/team", routes![create_team, update_team_members])
         .register("/api/v1", catchers![define_excp_handler])
 }

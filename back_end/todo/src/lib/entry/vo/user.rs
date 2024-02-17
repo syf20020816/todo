@@ -1,7 +1,10 @@
-use crate::lib::entry::dto::{self, Avatars, Team};
+use crate::lib::{
+    entry::dto::{self, Avatars},
+    mapping::{select_team_record_by_id, select_user_by_username},
+};
 use rocket::serde::{Deserialize, Serialize};
 
-use super::{todo::TodoBox, Todo};
+use super::{todo::TodoBox, Team, Todo};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -76,22 +79,34 @@ impl User {
             send_msg: user.send_msg,
         }
     }
+
     pub async fn from(value: dto::User) -> Self {
         let todos = TodoBox::from(value.todos).await;
 
         let teams = match value.teams {
             Some(teams) => {
-                let mut results = vec![];
+                let mut team_vos = Vec::new();
                 for team_id in teams {
-                    let res = Team::get(&team_id).await;
-                    if let Some((_, team)) = res {
-                        results.push(team);
+                    let (id, team) = select_team_record_by_id(&team_id).await.unwrap();
+                    let members = team.members();
+                    let mut team = Team::from(team);
+                    let _ = team.set_id(&id);
+                    let mut convert_members = Vec::new();
+                    for member in members {
+                        let user = select_user_by_username(&member).await.unwrap();
+                        let user = User::easy_from(user);
+                        convert_members.push(user);
                     }
+
+                    let _ = team.set_members(convert_members);
+                    team_vos.push(team);
                 }
-                Some(results)
+                Some(team_vos)
             }
             None => None,
         };
+
+        // let teams = value.teams.unwrap();
 
         User {
             username: value.username,

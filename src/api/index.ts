@@ -7,7 +7,7 @@
  */
 import { addNewTodo, deleteTodo, updateTodo, updateTodoStatus, completedTodo } from './src/todo'
 import { signin, signup, getUserInfo, setUserInfo, setUserAvatar } from './src/user'
-import { createTeam } from './src/team'
+import { createTeam, updateTeamMember, updateTeamInfo } from './src/team'
 export default {
   user: {
     signin,
@@ -24,6 +24,8 @@ export default {
     completedTodo
   },
   team: {
-    createTeam
+    createTeam,
+    updateTeamMember,
+    updateTeamInfo
   }
 }

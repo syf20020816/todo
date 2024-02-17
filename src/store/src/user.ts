@@ -52,6 +52,7 @@ export const user = defineStore('user', {
       window.localStorage.clear()
       this.isSignIn = false
       this.user = {} as User
+      this.msgBox = []
     },
     updateTodoList() {
       let { todos, todoNumber } = this.user
@@ -137,7 +138,6 @@ export const user = defineStore('user', {
               //已经结束了
               //通知系统提醒用户，若用户同意，将TODO设置为Pending状态
               // const data = api.todo.unCompletedTodo(this.user.username, todo)
-              console.log(todo)
               this.notifyTodoSys(todo)
             }
           }

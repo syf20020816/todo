@@ -133,11 +133,11 @@
             <el-alert type="info" show-icon :closable="false">
               <p class="alert-wrapper">
                 Enabling means that when you complete TODO, the system will send an email
-                to the reviewer
+                to the reviewer (not developed)
               </p>
             </el-alert>
             <el-form-item label="Send Email" prop="sendEmail">
-              <el-switch v-model="userStore.user.sendEmail" />
+              <el-switch v-model="userStore.user.sendEmail" disabled />
             </el-form-item>
           </el-space>
           <el-space fill>

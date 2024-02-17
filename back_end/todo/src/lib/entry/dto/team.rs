@@ -2,7 +2,8 @@ use std::sync::Arc;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
-use crate::lib::mapping::select_todo_record_by_id;
+use crate::lib::entry::vo;
+use crate::lib::mapping::select_team_record_by_id;
 
 use super::Date;
 use super::TeamAvatars;
@@ -13,15 +14,21 @@ use rocket::serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Team {
-    name: String,
-    members: Vec<String>,
-    owner: String,
-    avatar: TeamAvatars,
-    description: String,
-    date: String,
+    pub name: String,
+    pub members: Vec<String>,
+    pub owner: String,
+    pub avatar: TeamAvatars,
+    pub description: String,
+    pub date: String,
 }
 
 impl Team {
+    pub fn members(&self) -> Vec<String> {
+        self.members.clone()
+    }
+    pub fn add_member(&mut self, member: &str) {
+        self.members.push(member.to_string());
+    }
     pub fn new_rand(name: &str, owner: &str) -> Self {
         let date = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -38,7 +45,7 @@ impl Team {
         }
     }
     pub async fn get(id: &str) -> Option<(String, Team)> {
-        select_todo_record_by_id(id).await
+        select_team_record_by_id(id).await
     }
 }
 
@@ -51,6 +58,24 @@ impl Default for Team {
             avatar: Default::default(),
             description: String::new(),
             date: Default::default(),
+        }
+    }
+}
+
+impl From<vo::Team> for Team {
+    fn from(value: vo::Team) -> Self {
+        let members = value
+            .members
+            .into_iter()
+            .map(|member| member.username().to_string())
+            .collect::<Vec<String>>();
+        Team {
+            name: value.name,
+            members,
+            owner: value.owner,
+            avatar: value.avatar,
+            description: value.description,
+            date: value.date,
         }
     }
 }
