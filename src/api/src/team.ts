@@ -18,3 +18,8 @@ export const updateTeamInfo = async (team: Team): Promise<boolean> => {
   const { data } = await request.put(`/team`, team)
   return data
 }
+
+export const createTeamTodo = async (teamId: string, todo: any): Promise<boolean> => {
+  const { data } = await request.post(`/team/todo/${teamId}`, todo)
+  return data
+}

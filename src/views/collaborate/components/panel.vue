@@ -13,12 +13,28 @@
         Create Team TODO
       </el-button>
     </div>
-    <div class="panel-member-detail-wrapper">
-      <header class="header">
-        <!-- <img :src="useAvatar(member!.avatar)" alt="" class="avatar" /> -->
-      </header>
-      <center class="center"></center>
-      <footer class="footer"></footer>
+    <div class="panel-todo-detail-wrapper" v-if="props.data?.todos?.length">
+      <div class="left">
+        <div
+          v-for="item in props.data?.todos"
+          :key="item.id"
+          class="todo-wrapper"
+          @click="currentTodo = item"
+        >
+          <span class="priority" :style="getPriorityDot(item)"></span>
+          <span style="font-weight: 700"> {{ item.name }}</span>
+        </div>
+      </div>
+      <div class="right">
+        <TODOItem
+          :is-change="true"
+          :current-todo="currentTodo"
+          @change="changeTodo"
+        ></TODOItem>
+      </div>
+    </div>
+    <div v-else class="panel-todo-detail-wrapper" style="justify-content: center">
+      <h4>This Team now has no TODOs</h4>
     </div>
     <div class="panel-team-detail-wrapper">
       <div v-if="isShowTeam">
@@ -146,6 +162,38 @@
             placeholder="Please input"
           />
         </el-form-item>
+        <el-form-item label="Reviewers">
+          <el-select
+            style="width: 360px"
+            multiple
+            v-model="todoForm.reviewers"
+            placeholder="choose reviewers"
+          >
+            <el-option
+              v-for="item in props.data?.members"
+              :label="item.name"
+              :value="item.username"
+              :key="item.username"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Performers">
+          <el-select
+            style="width: 360px"
+            multiple
+            v-model="todoForm.performers"
+            placeholder="choose performer"
+          >
+            <el-option
+              v-for="item in props.data?.members"
+              :label="item.name"
+              :value="item.username"
+              :key="item.username"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="Date" prop="date">
           <el-date-picker
             v-model="todoForm.date"
@@ -258,18 +306,24 @@ import {
   useAvatar,
   useTeam,
   TeamAvatars,
+  User,
+usePriorityColor,
 } from "../../../core";
 import { CircleClose, QuestionFilled, CirclePlusFilled } from '@element-plus/icons-vue'
 import { type UploadProps, type UploadUserFile, type UploadInstance, ElMessage, type UploadFile, type UploadFiles, FormRules, FormInstance } from 'element-plus'
 import { user as userPinia } from "../../../store/src/user";
 import api from "../../../api";
+import { TODOItem } from "../../plan";
 
 const props = defineProps<{
   data?: Team;
   addMemberDisabled: boolean;
 }>();
+
+console.log(props.data)
+
 const userStore = userPinia();
-const emits = defineEmits(["create", "add"]);
+const emits = defineEmits(["create", "add", "changeTeam"]);
 const todoFormRef = ref<FormInstance>()
 const createNewTeam = () => {
   emits("create");
@@ -280,7 +334,7 @@ const addMember = () => {
 const isShowTeam = computed(() => {
   return typeof props?.data !== "undefined";
 });
-
+const currentTodo = ref<Todo>()
 const setTeamVisible = ref(false);
 const addTagVisible = ref(false)
 const addTodoVisible = ref(false)
@@ -296,6 +350,13 @@ const addNewTodo = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       let todo = convertTodo();
+
+      let reviewers = toRaw(todoForm.reviewers);
+      let performers =toRaw( todoForm.performers);
+      Object.assign(todo, {
+        reviewers,
+        performers
+      })
       if (isChange.value) {
         Object.assign(todo, { owner: changeTodoItem.value.owner ?? "" });
         console.log(todo);
@@ -312,13 +373,15 @@ const addNewTodo = async (formEl: FormInstance | undefined) => {
           userStore.setUser(data);
         }
       } else {
-        const data = await api.todo.addNewTodo(todo);
-        if (typeof data !== "undefined") {
+        let id= props.data!.id;
+        const data = await api.team.createTeamTodo(id,todo);
+        if (data) {
           ElMessage({
             type: "success",
             message: "Create new Todo successfully",
           });
-          userStore.setUser(data);
+          const user = await api.user.getUserInfo(userStore.user.username);
+          userStore.setUser(user!);
         }
       }
     } else {
@@ -344,6 +407,8 @@ interface TodoRuleForm {
     data: string;
   }>;
   isFocus: boolean;
+  performers: string[];
+  reviewers: string[];
 }
 const changeTodoItem = ref<{
   id: string
@@ -352,6 +417,12 @@ const changeTodoItem = ref<{
   id: '',
   owner: ''
 })
+
+const getPriorityDot = computed(() => (item: Todo) => {
+  let { priority } = item || Priorities.Low
+  return `background-color : ${usePriorityColor(priority)}`
+})
+
 
 const removeTag = (tag: ITagProps) => {
   todoForm.tags = todoForm.tags.filter(item => item !== tag)
@@ -439,6 +510,8 @@ const todoForm = reactive<TodoRuleForm>({
   tags: [],
   description: "",
   information: "",
+  reviewers: [],
+  performers: [],
   annexs: [],
   isFocus: false,
 });
@@ -454,11 +527,30 @@ const checkDate = () => {
   }
 }
 
+const changeTodo = (todo: Todo) => {
+  console.log(todo)
+  todoForm.name = todo.name
+  todoForm.description = todo.description ?? ''
+  todoForm.tags = todo.tags
+  todoForm.information = todo.information ?? ''
+  todoForm.date = [new Date(todo.date.start), new Date(todo.date.end)]
+  todoForm.isFocus = todo.isFocus
+  todoForm.priority = todo.priority
+  todoForm.annexs = todo.annexs ?? []
+  todoForm.reviewers = todo.reviewers.map(x=>x.username)
+  todoForm.performers = todo.performers.map(x=>x.username)
+  addTodoVisible.value = true
+  isChange.value = true
+  changeTodoItem.value.id = todo.id!
+  changeTodoItem.value.owner = todo.owner
+}
+
 const convertTodo = (): Todo => {
   let during = todoForm.date[1].getTime() - todoForm.date[0].getTime();
   let currentTime = new Date().getTime() - todoForm.date[0].getTime();
   let status = currentTime < 0 ? Status.NOT_START : Status.IN_PROGRESS;
   let { username } = userStore.user;
+
   let todo: Todo = {
     owner: username,
     name: todoForm.name,
@@ -545,9 +637,9 @@ const openSetTeam = () => {
   setTeamVisible.value = true
   teamForm.avatar = props.data!.avatar
 
-  teamAvatarsOptions.value.map(option=>{
-    if(option.value===props.data!.avatar){
-      option.select  =true;
+  teamAvatarsOptions.value.map(option => {
+    if (option.value === props.data!.avatar) {
+      option.select = true;
     }
     return option
   })
@@ -571,21 +663,34 @@ const selectTeamAvatar = (index: number) => {
     return option
   });
   teamAvatarsOptions.value[index].select = true
-  teamForm.avatar = teamAvatarsOptions[index].value
+  teamForm.avatar = teamAvatarsOptions.value[index].value
 }
 
-const changeTeam =async ()=>{
-  let team = {
-    id: props.data?.id,
-  name: teamForm.name,
-  members: props.data?.members,
-  owner: props.data?.owner,
-  avatar: teamForm.avatar
-  description: teamForm.description
-  date:  props.data?.date
+const changeTeam = async () => {
+  let team: Team = {
+    id: props.data!.id,
+    name: teamForm.name,
+    members: props.data!.members,
+    owner: props.data!.owner,
+    avatar: teamForm.avatar,
+    description: teamForm.description,
+    date: props.data!.date,
+    todos:props.data!.todos
   }
- const data =  api.team.updateTeamInfo(team);
-
+  const data = await api.team.updateTeamInfo(team);
+  if (data) {
+    ElMessage({
+      type: "success",
+      message: "Updated team info successfully"
+    })
+    emits('changeTeam')
+  } else {
+    ElMessage({
+      type: "error",
+      message: "Updated team info failed"
+    })
+  }
+  setTeamVisible.value = false;
 }
 </script>
 
@@ -617,32 +722,54 @@ const changeTeam =async ()=>{
     justify-content: flex-start;
   }
 
-  .panel-member-detail-wrapper {
-    height: calc(400px - 32px);
+  .panel-todo-detail-wrapper {
+    height: calc(100% - 300px);
     width: 100%;
     background-color: $bg-color-hover;
     box-sizing: border-box;
     margin: 8px 16px;
     border-radius: 4px;
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      height: 72px;
-      padding: 6px;
+    padding: 6px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    .left {
+      scrollbar-width: thin;
+      overflow-y: scroll;
+      height: 100%;
+      width: 240px;
       box-sizing: border-box;
-
-      .avatar {
-        height: 60px;
-        width: 60px;
-        border-radius: 50%;
+      padding-right: 6px;
+      border-right: 1px dashed $bg-color-light;
+      .todo-wrapper {
+        cursor: pointer;
+        width: 100%;
+        background-color: $bg-color-menu;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        box-sizing: border-box;
+        padding: 16px;
+        border-radius: 4px;
+        .priority {
+          display: inline-block;
+          height: 12px;
+          width: 12px;
+          border-radius: 2px;
+          background-color: #d02828;
+          margin-right: 6px;
+        }
       }
+    }
+    .right {
+      height: 100%;
+      width: calc(100% - 240px);
     }
   }
 
   .panel-team-detail-wrapper {
-    height: calc(100% - 400px - 92px);
+    height: 200px;
     width: 100%;
     margin: 8px 16px;
     background-color: $bg-color-hover;

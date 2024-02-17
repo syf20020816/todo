@@ -20,6 +20,7 @@ pub struct Team {
     pub avatar: TeamAvatars,
     pub description: String,
     pub date: String,
+    pub todos: Vec<String>,
 }
 
 impl Team {
@@ -42,10 +43,14 @@ impl Team {
             avatar: TeamAvatars::Team1,
             description: String::new(),
             date: date.to_string(),
+            todos: Vec::new(),
         }
     }
     pub async fn get(id: &str) -> Option<(String, Team)> {
         select_team_record_by_id(id).await
+    }
+    pub fn push_todo(&mut self, todo_id: &str) {
+        self.todos.push(todo_id.to_string());
     }
 }
 
@@ -58,6 +63,7 @@ impl Default for Team {
             avatar: Default::default(),
             description: String::new(),
             date: Default::default(),
+            todos: Vec::new(),
         }
     }
 }
@@ -69,6 +75,12 @@ impl From<vo::Team> for Team {
             .into_iter()
             .map(|member| member.username().to_string())
             .collect::<Vec<String>>();
+
+        let todos = value
+            .todos
+            .into_iter()
+            .map(|todo| todo.id().to_string())
+            .collect::<Vec<String>>();
         Team {
             name: value.name,
             members,
@@ -76,6 +88,7 @@ impl From<vo::Team> for Team {
             avatar: value.avatar,
             description: value.description,
             date: value.date,
+            todos,
         }
     }
 }

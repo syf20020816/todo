@@ -34,6 +34,24 @@ pub async fn create_todo_by_username(username: &str, mut todo: Todo) -> Option<(
     }
 }
 
+pub async fn create_todo_by_team(team_id: &str, mut todo: Todo) -> Option<(String, Todo)> {
+    let _ = todo.set_owner(team_id.to_string());
+
+    let sql = Stmt::create()
+        .table("todo".into())
+        .data(todo.into())
+        .output(Output::After)
+        .to_string();
+    let mut result = DB.query(sql).await.unwrap();
+    let sql_result: Vec<Record<Todo>> = result.take(0_usize).unwrap();
+    if sql_result.len() == 1 {
+        let res = sql_result[0].clone();
+        Some(res.to_record())
+    } else {
+        None
+    }
+}
+
 pub async fn select_todo_record(id: &str) -> Option<(String, Todo)> {
     let sql = Stmt::select()
         .table(("todo", id).into())

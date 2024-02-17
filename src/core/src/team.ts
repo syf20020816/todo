@@ -2,6 +2,7 @@ import Team1SVG from '../../assets/team/team1.svg'
 import Team2SVG from '../../assets/team/team2.svg'
 import Team3SVG from '../../assets/team/team3.svg'
 import Team4SVG from '../../assets/team/team4.svg'
+import { Todo } from './todo'
 import { User } from './user'
 
 /**
@@ -42,4 +43,5 @@ export type Team = {
   avatar: TeamAvatars
   description: string
   date: Date
+  todos: Todo[]
 }

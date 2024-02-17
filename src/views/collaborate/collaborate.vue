@@ -52,6 +52,7 @@
           @create="createNewTeam"
           @add="addMember"
           :add-member-disabled="addMemberDisabled"
+          @change-team="refresh"
         ></Panel>
       </div>
     </div>
@@ -149,10 +150,7 @@ const addMember = () => {
       .updateTeamMember(name, currentTeam.value!)
       .then((update) => {
         if (update) {
-          api.user.getUserInfo(userStore.user.username).then((user) => {
-            userStore.setUser(user!);
-            currentTeam.value = undefined;
-          });
+          refresh();
           ElMessage({
             type: "success",
             message: "Add member successfully",
@@ -165,6 +163,13 @@ const addMember = () => {
         }
       })
       .catch(() => {});
+  });
+};
+
+const refresh = () => {
+  api.user.getUserInfo(userStore.user.username).then((user) => {
+    userStore.setUser(user!);
+    currentTeam.value = undefined;
   });
 };
 </script>

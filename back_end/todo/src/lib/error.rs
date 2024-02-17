@@ -16,13 +16,13 @@ pub enum Error {
     CompleteTodo,
     CreateTeam,
     UpdateTeam,
+    CreateTeamTodo,
 }
 
 impl Error {
     pub fn get(self) -> (u16, String) {
         match self {
             Error::IdentityAuthentication => (1001, self.to_string()),
-
             Error::ExistAccount => (1002, self.to_string()),
             Error::ChangeUserSetting => (1003, self.to_string()),
             Error::ChangeUserAvatar => (1004, self.to_string()),
@@ -34,6 +34,7 @@ impl Error {
             Error::CreateTeam => (1201, self.to_string()),
             Error::UpdateTeam => (1202, self.to_string()),
             Error::AccountUnExist => (1006, self.to_string()),
+            Error::CreateTeamTodo => (1203, self.to_string()),
         }
     }
 }
@@ -55,6 +56,7 @@ impl Display for Error {
             Error::CreateTeam => "Create team failed",
             Error::UpdateTeam => "Update team failed",
             Error::AccountUnExist => "Account is not exist, please check!",
+            Error::CreateTeamTodo => "Create team todo failed",
         };
         f.write_str(alert_msg)
     }

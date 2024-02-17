@@ -89,7 +89,7 @@ impl User {
                 for team_id in teams {
                     let (id, team) = select_team_record_by_id(&team_id).await.unwrap();
                     let members = team.members();
-                    let mut team = Team::from(team);
+                    let mut team = Team::from(team).await;
                     let _ = team.set_id(&id);
                     let mut convert_members = Vec::new();
                     for member in members {
