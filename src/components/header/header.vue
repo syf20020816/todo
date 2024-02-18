@@ -25,7 +25,9 @@
         <div class="search-result-wrapper">
           <header class="header">
             <h4>Search Result:</h4>
-            <el-icon @click="showSearch = false"><CircleClose /></el-icon>
+            <el-icon @click="showSearch = false">
+              <CircleClose />
+            </el-icon>
           </header>
           <center class="center">
             <div
@@ -57,8 +59,8 @@
           <template #reference>
             <div :class="buildWrap(component, 'logo-wrap')">
               <el-badge :value="userStore.msgBox.length" :max="99">
-                <div v-html="useSvg(SVGs.NOTE, 24)"></div
-              ></el-badge>
+                <div v-html="useSvg(SVGs.NOTE, 24)"></div>
+              </el-badge>
             </div>
           </template>
           <Notice v-for="item in userStore.msgBox" :key="item.id" :data="item"></Notice>
@@ -167,11 +169,11 @@
 import { Search } from '@element-plus/icons-vue'
 import { ref, reactive, defineComponent, computed } from 'vue'
 import { buildView, buildWrap, Todo, UserInfoChangeForm } from '../../core'
-import { SVGs, useSvg,Notice } from '../index'
+import { SVGs, useSvg, Notice } from '../index'
 import { user } from '../../store/src/user'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 
-import { InfoFilled,CircleClose  } from '@element-plus/icons-vue'
+import { InfoFilled, CircleClose } from '@element-plus/icons-vue'
 import api from '../../api'
 
 const component = 'Header'
@@ -199,8 +201,8 @@ const onSearch = () => {
   //去除字符串前后空格
   const formatSearchValue = searchValue.value.trim()
   console.log(formatSearchValue)
-  let {todos} = userStore
-  searchResults.value =  todos.filter(todo=>todo.name.includes(formatSearchValue) )
+  let { todos } = userStore
+  searchResults.value = todos.filter(todo => todo.name.includes(formatSearchValue))
   showSearch.value = true;
 }
 
@@ -248,11 +250,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       if (username) {
         let form = {
           name: userStore.user.name,
-  email: userStore.user.email,
-  sendEmail: userStore.user.sendEmail,
-  sendMsg: userStore.user.sendMsg
+          email: userStore.user.email,
+          sendEmail: userStore.user.sendEmail,
+          sendMsg: userStore.user.sendMsg
         }
-        const data = await api.user.setUserInfo(username,form )
+        const data = await api.user.setUserInfo(username, form)
         if (typeof data !== 'undefined') {
           ElMessage({
             type: 'success',
