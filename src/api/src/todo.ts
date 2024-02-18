@@ -29,6 +29,11 @@ export const updateTodo = async (username: string, id: string, todo: Todo): Prom
   return data
 }
 
+export const failedTodo = async (username: string, id: string, todo: Todo): Promise<ApiResponse<User>> => {
+  const { data } = await request.put('/todo/failed/' + username + '/' + id, todo)
+  return data
+}
+
 export const updateTodoStatus = async (id: String, status: Status): Promise<boolean> => {
   const { data } = await request.get('/todo/' + id + '/' + status)
   return data

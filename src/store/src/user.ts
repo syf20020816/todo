@@ -112,7 +112,7 @@ export const user = defineStore('user', {
         let current = new Date().getTime()
         this.todos.forEach(async (todo: Todo) => {
           let { date, status, id } = todo
-          if (status !== Status.COMPLETED && status !== Status.PENDING) {
+          if (status !== Status.COMPLETED && status !== Status.PENDING && status !== Status.FAILED) {
             // 更新状态
             // > 0 已经开始
             let start = current - new Date(date.start).getTime()

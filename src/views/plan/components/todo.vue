@@ -5,7 +5,9 @@
         <span class="priority" :style="getPriorityDot(currentTodo)"></span>
       </span>
       <div class="todo-name">{{ currentTodo.name }}</div>
-      <el-button type="success" @click="completeTodo">✅complete</el-button>
+      <el-button type="success" @click="completeTodo" v-if="isCompelete"
+        >✅complete</el-button
+      >
       <el-button type="warning" @click="changeTodo" v-if="isChange">change</el-button>
       <el-button type="danger" @click="deleteTodo">❌discard</el-button>
       <el-button type="info" @click="pendingTodo" v-if="isPending">🦥pending</el-button>
@@ -112,6 +114,7 @@ import { user as userPinia } from "../../../store/src/user";
 const props = defineProps<{
   currentTodo?: Todo;
   isChange: boolean;
+  isCompelete: boolean;
 }>();
 const userStore = userPinia();
 const emits = defineEmits(["change", "delete", "refresh"]);

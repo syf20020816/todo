@@ -5,7 +5,7 @@
  * 2. 若使用此方式（axios-api模块化）请注释掉main.js中案例提供的默认$http的全局axios
  * ==============================
  */
-import { addNewTodo, deleteTodo, updateTodo, updateTodoStatus, completedTodo } from './src/todo'
+import { addNewTodo, deleteTodo, updateTodo, updateTodoStatus, completedTodo, failedTodo } from './src/todo'
 import { signin, signup, getUserInfo, setUserInfo, setUserAvatar } from './src/user'
 import { createTeam, updateTeamMember, updateTeamInfo, createTeamTodo } from './src/team'
 export default {
@@ -21,7 +21,8 @@ export default {
     deleteTodo,
     updateTodo,
     updateTodoStatus,
-    completedTodo
+    completedTodo,
+    failedTodo
   },
   team: {
     createTeam,

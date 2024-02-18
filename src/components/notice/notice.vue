@@ -62,9 +62,11 @@ const checkNotice = () => {
 #notice_container {
   border-bottom: 2px dashed #444c58;
   padding-bottom: 6px;
+
   h4 {
     margin: 6px 0;
   }
+
   .check {
     text-align: end;
     color: #de511a;

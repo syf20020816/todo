@@ -22,6 +22,7 @@
       </div>
       <div class="todo_wrapper">
         <TODOItem
+          :is-compelete="rule !== 10"
           v-if="isShow"
           :is-change="true"
           :current-todo="currentTodo"
@@ -280,35 +281,18 @@ const showTodoDetails = (item: Todo) => {
   currentTodo.value = item
 }
 
-const shortcuts = [
-  {
-    text: 'Next day',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      end.setTime(start.getTime() + 3600 * 1000 * 24 * 1)
-      return [start, end]
-    }
-  },
-  {
-    text: 'Next week',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
-      return [start, end]
-    }
-  },
-  {
-    text: 'Next month',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
-      return [start, end]
-    }
+const rule = computed(()=>{
+  let todoRule = 0;
+  if(currentTodo.value?.performers.filter((x:any)=>x.username===userStore.user.username).length!==0){
+    todoRule+=1;
+}
+  if(currentTodo.value?.reviewers.filter((x:any)=>x.username===userStore.user.username).length!==0){
+    todoRule +=10;
   }
-]
+  console.log(todoRule)
+  return todoRule
+})
+
 
 interface TodoRuleForm {
   name: string
@@ -473,6 +457,36 @@ const addTag = () => {
     label: ''
   } as ITagProps
 }
+
+const shortcuts = [
+  {
+    text: 'Next day',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 1)
+      return [start, end]
+    }
+  },
+  {
+    text: 'Next week',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
+      return [start, end]
+    }
+  },
+  {
+    text: 'Next month',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
+      return [start, end]
+    }
+  }
+];
 
 const removeTag = (tag: ITagProps) => {
   todoForm.tags = todoForm.tags.filter(item => item !== tag)

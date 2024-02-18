@@ -53,7 +53,7 @@
           </span>
         </template>
         <div class="table_wrapper">
-          <Table :datas="userStore.todos"></Table>
+          <Pending :datas="pendingTodos"></Pending>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -61,15 +61,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
-import { Avatars, buildView, Priorities, Status, Todo } from '../../core'
-import { SVGs, useSvg } from '../../components'
-import { CreatePreview, Calendar, Timeline, Table } from './index'
-import { user as userPinia } from '../../store/src/user'
-const component = 'Plan'
-const userStore = userPinia()
+import { ref, reactive, computed } from "vue";
+import { Avatars, buildView, Priorities, Status, Todo } from "../../core";
+import { SVGs, useSvg } from "../../components";
+import { CreatePreview, Calendar, Timeline, Table, Pending } from "./index";
+import { user as userPinia } from "../../store/src/user";
+const component = "Plan";
+const userStore = userPinia();
+
+const pendingTodos = computed(() => {
+  return userStore.todos.filter((todo) => todo.status === Status.PENDING);
+});
 </script>
 
 <style lang="scss">
-@import '../../styles/views/plan.scss';
+@import "../../styles/views/plan.scss";
 </style>

@@ -27,10 +27,15 @@
       </div>
       <div class="right">
         <TODOItem
+          v-if="rule.todoRule === 1 || rule.todoRule === 11 || rule.todoRule === 10"
           :is-change="true"
+          :is-compelete="rule.todoRule === 1 || rule.todoRule === 11"
           :current-todo="currentTodo"
           @change="changeTodo"
         ></TODOItem>
+        <div v-else>
+          <h4>The current TODO does not belong to you</h4>
+        </div>
       </div>
     </div>
     <div v-else class="panel-todo-detail-wrapper" style="justify-content: center">
@@ -320,7 +325,7 @@ const props = defineProps<{
   addMemberDisabled: boolean;
 }>();
 
-console.log(props.data)
+
 
 const userStore = userPinia();
 const emits = defineEmits(["create", "add", "changeTeam"]);
@@ -343,6 +348,27 @@ const teamForm = reactive({
   name: "",
   avatar: TeamAvatars.Team1,
   description: ""
+})
+const rule = computed(()=>{
+  let teamRule = "partner"
+  if(props.data?.owner===userStore.user.username){
+    teamRule = "owner"
+  }
+  // 0: 这个TODO和你无关
+  // 1: 这个TODO你是执行者
+  // 10: 这个TODO你是审核者
+  // 11: 这个TODO你即使执行者也是审核者
+  let todoRule = 0
+  if(currentTodo.value?.performers.filter(x=>x.username===userStore.user.username).length!==0){
+    todoRule+=1;
+}
+  if(currentTodo.value?.reviewers.filter(x=>x.username===userStore.user.username).length!==0){
+    todoRule +=10;
+  }
+  return{
+    teamRule,
+    todoRule
+  }
 })
 
 const addNewTodo = async (formEl: FormInstance | undefined) => {
@@ -752,6 +778,7 @@ const changeTeam = async () => {
         box-sizing: border-box;
         padding: 16px;
         border-radius: 4px;
+        margin: 3px 0;
         .priority {
           display: inline-block;
           height: 12px;

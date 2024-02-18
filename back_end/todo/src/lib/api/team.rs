@@ -16,8 +16,6 @@ use crate::lib::{
     response::ResultJsonData,
 };
 
-use super::create_todo;
-
 #[get("/<username>/<name>")]
 pub async fn create_team(username: &str, name: &str) -> ResultJsonData<vo::User> {
     let query = create_team_by_name(name, username).await;

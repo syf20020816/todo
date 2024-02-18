@@ -38,7 +38,11 @@
       </el-timeline>
     </div>
     <div class="right">
-      <TODOItem :current-todo="currentTodo" :is-change="false"></TODOItem>
+      <TODOItem
+        :current-todo="currentTodo"
+        :is-change="false"
+        :is-compelete="false"
+      ></TODOItem>
     </div>
   </div>
 </template>

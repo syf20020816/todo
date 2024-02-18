@@ -60,11 +60,35 @@ pub async fn delete_todo(username: &str, id: &str) -> ResultJsonData<vo::User> {
 #[put("/<username>/<id>", format = "application/json", data = "<todo>")]
 pub async fn update_todo(username: &str, id: &str, todo: Json<Todo>) -> ResultJsonData<vo::User> {
     let query = update_todo_by_id(&id, todo.0).await;
+
     if query {
         let user_query = select_user_by_username(username).await;
         if let Some(mut user) = user_query {
             let user = vo::User::from(user).await;
             return ResultJsonData::success(user);
+        }
+    }
+    let e = Error::UpdateTodo;
+    let (e_code, e_msg) = e.get();
+    return ResultJsonData::define_failure(e_code, &e_msg);
+}
+
+#[put(
+    "/failed/<username>/<id>",
+    format = "application/json",
+    data = "<todo>"
+)]
+pub async fn failed_todo(username: &str, id: &str, todo: Json<Todo>) -> ResultJsonData<vo::User> {
+    let query = update_todo_by_id(&id, todo.0).await;
+    if query {
+        let user_query = select_user_by_username(username).await;
+        if let Some(mut user) = user_query {
+            let _ = user.failed_todo(id);
+            let query = update_user_by_username(user).await;
+            if let Some(user) = query {
+                let user = vo::User::from(user).await;
+                return ResultJsonData::success(user);
+            }
         }
     }
     let e = Error::UpdateTodo;
@@ -101,20 +125,4 @@ pub async fn complete_todo(username: &str, id: &str) -> ResultJsonData<vo::User>
     let e = Error::CompleteTodo;
     let (e_code, e_msg) = e.get();
     return ResultJsonData::define_failure(e_code, &e_msg);
-}
-
-#[get("/ho")]
-pub async fn ho() -> ResultJsonData<bool> {
-    let todos = TodoBox {
-        low: vec!["38issczoupzismi6w17v".to_string()],
-        mid: Default::default(),
-        fatal: Default::default(),
-        history: Default::default(),
-        focus: Default::default(),
-    };
-    let todos = vo::TodoBox::from(todos).await;
-    // let res = convert_ids_to_todo_instances(vec!["38issczoupzismi6w17v".to_string()]).await;
-
-    dbg!(todos);
-    ResultJsonData::success(true)
 }

@@ -44,7 +44,11 @@
       <el-table-column type="expand" fixed="right">
         <template #default="props">
           <div class="expand-table-wrapper">
-            <TODOItem :current-todo="props.row" :is-change="false"></TODOItem>
+            <TODOItem
+              :current-todo="props.row"
+              :is-change="false"
+              :is-compelete="false"
+            ></TODOItem>
           </div>
         </template>
       </el-table-column>

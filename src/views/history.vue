@@ -28,7 +28,11 @@
       </div>
     </div>
     <div :class="buildWrap(component, 'right')">
-      <TODOItem :current-todo="currentItem" :is-change="false"></TODOItem>
+      <TODOItem
+        :current-todo="currentItem"
+        :is-change="false"
+        :is-compelete="false"
+      ></TODOItem>
     </div>
   </div>
 </template>

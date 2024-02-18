@@ -83,6 +83,10 @@ impl User {
         // 将其加入到history中
         self.todos.history.push(id.to_string());
     }
+    pub fn failed_todo(&mut self, id: &str) {
+        dbg!(id);
+        self.complete_todo(id);
+    }
     pub fn create_team(&mut self, id: &str) {
         match &mut self.teams {
             Some(teams) => teams.push(id.to_string()),

@@ -31,6 +31,7 @@
           </template>
           <div style="height: 360px">
             <TODOItem
+              :is-compelete="false"
               :current-todo="item"
               :is-change="false"
               @refresh="refreshTodo"
