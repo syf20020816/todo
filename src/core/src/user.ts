@@ -3,11 +3,13 @@ import { TodoBox } from './todo'
 import { Team } from './team'
 import { Option } from './common'
 
+// 用户登录表单
 type UserLoginForm = {
   username: string
   password: string
 }
 
+// 用户信息
 type User = {
   username: string
   name: string
@@ -24,6 +26,7 @@ type User = {
   sendMsg: boolean
 }
 
+// 用户信息变更表单
 type UserInfoChangeForm = {
   name: string
   email: string
