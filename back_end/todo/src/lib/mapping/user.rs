@@ -1,20 +1,19 @@
-use std::fmt::format;
-
 use super::Record;
 use crate::lib::{
     db::DB,
     entry::{
-        dto::{Avatars, Team, User},
+        dto::{Avatars, User},
         vo::UserPersonalSetting,
     },
 };
 use rocket::serde::{Deserialize, Serialize};
 use surreal_use::core::{
-    sql::{Cond, CreateData, Field, SetField, UpdateData},
+    sql::{Cond, CreateData, SetField, UpdateData},
     Stmt,
 };
 use surrealdb::sql::{Operator, Output};
 
+// 通过用户ID查询用户
 pub async fn select_user_by_id(id: &str) -> Option<User> {
     let table = format!("user:{}", id);
     let sql = Stmt::select().table(table.as_str().into()).to_string();
@@ -30,6 +29,7 @@ pub async fn select_user_by_id(id: &str) -> Option<User> {
     }
 }
 
+// 通过用户名查询用户(携带记录的ID)
 pub async fn select_user_record_by_username(username: &str) -> Option<(String, User)> {
     let sql = Stmt::select()
         .table("user".into())
@@ -51,6 +51,7 @@ pub async fn select_user_record_by_username(username: &str) -> Option<(String, U
     }
 }
 
+// 使用用户名查询用户
 pub async fn select_user_by_username(username: &str) -> Option<User> {
     let query = select_user_record_by_username(username).await;
     if let Some((_id, user)) = query {
@@ -60,9 +61,9 @@ pub async fn select_user_by_username(username: &str) -> Option<User> {
     }
 }
 
+// 检查是否已经有用户了
 pub async fn check_user_by_username(username: &str) -> bool {
-    dbg!(username);
-
+    // 这里见到那写个零时的结构体用于获取用户
     #[derive(Serialize, Deserialize)]
     #[serde(crate = "rocket::serde")]
     struct TmpUser {
@@ -86,6 +87,7 @@ pub async fn check_user_by_username(username: &str) -> bool {
     check_result.len().eq(&0_usize)
 }
 
+// 创建一个新用户
 pub async fn create_user(user: User) -> Option<User> {
     let sql = Stmt::create()
         .table("user".into())
@@ -101,13 +103,17 @@ pub async fn create_user(user: User) -> Option<User> {
     Some(res)
 }
 
+// 通过用户名密码查询用户
+// 使用Where子句进行过滤
 pub async fn select_user_by_username_password(username: &str, password: &str) -> Option<User> {
+    // 创建用户名过滤条件
     let username_cond = Cond::new()
         .left("username")
         .op(Operator::Equal)
         .right(username.into())
         .to_origin()
         .0;
+    // 创建密码过滤条件
     let password_cond = Cond::new()
         .left("password")
         .op(Operator::Equal)
@@ -136,6 +142,7 @@ pub async fn select_user_by_username_password(username: &str, password: &str) ->
     }
 }
 
+// 更新用户设置
 pub async fn update_user_by_personal_settings(
     user: UserPersonalSetting,
     username: &str,
@@ -144,6 +151,9 @@ pub async fn update_user_by_personal_settings(
     let email = user.email();
     let send_email = user.send_email();
     let send_msg = user.send_msg();
+
+    // 由于这里只需要更新四个字段
+    // 使用SET方式构建更新会更加简单
     let update_set = vec![
         SetField::new("name", None, name),
         SetField::new("email", None, email),
@@ -172,6 +182,7 @@ pub async fn update_user_by_personal_settings(
     }
 }
 
+// 更新用户的头像通过用户名获取目标用户进行过滤
 pub async fn update_user_avatar(username: &str, avatar: Avatars) -> bool {
     let avatar = avatar.to_string();
     let sql = Stmt::update()
@@ -193,7 +204,7 @@ pub async fn update_user_avatar(username: &str, avatar: Avatars) -> bool {
         return false;
     }
 }
-
+// 通过用户名过滤更新用户
 pub async fn update_user_by_username(user: User) -> Option<User> {
     let username = user.clone().username;
     let sql = Stmt::update()
