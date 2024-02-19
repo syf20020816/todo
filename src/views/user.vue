@@ -1,6 +1,8 @@
 // 用户个人中心页
 <template>
+  <!-- 用户界面的根元素，其id通过buildView方法动态生成，依据组件名 -->
   <div :id="buildView(component)">
+    <!-- 用户头像展示区域，点击可以打开选择头像的抽屉 -->
     <div :class="buildWrap(component, 'avatar')">
       <img
         @click="avatarDrawer = true"
@@ -8,6 +10,7 @@
         :src="userStore.useAvatar(userStore.user.avatar)"
         alt="Avatar"
       />
+      <!-- 用户基本信息展示，包括用户名和电子邮件 -->
       <div :class="buildWrap('avatar', 'userInfo')">
         <div v-html="useSvg(SVGs.LOGO, 32)"></div>
         <div class="title">
@@ -16,9 +19,11 @@
         <div class="email">Email:{{ userStore.user.email }}</div>
       </div>
     </div>
+    <!-- 用户详细信息区域，包括只读的用户信息和用户繁忙程度评分 -->
     <div :class="buildWrap(component, 'details')">
       <div class="details-title">
         <span>UserInfo(ReadOnly)</span>
+        <!-- 用户繁忙程度评分，使用element-plus的评分组件展示 -->
         <div class="info-extra">
           <el-rate
             v-model="busyValue"
@@ -29,15 +34,18 @@
             :colors="['#409eff', '#FF9900', '#ff0000']"
             :score-template="busyTemplate"
           />
+          <!-- 按钮，用于跳转至处理待办事项的页面 -->
           <el-button type="primary" @click="toPlan">Solve TODOs</el-button>
         </div>
       </div>
+      <!-- 循环展示用户信息列表 -->
       <div class="info-details-list">
         <div class="info-item" v-for="(item, index) in userInfoList" :key="index">
           <div class="item-title">{{ item.label }} :</div>
           <div class="item-value">{{ item.value }}</div>
         </div>
       </div>
+      <!-- 展示用户解决待办事项的进度 -->
       <el-progress
         :percentage="countSolve"
         :stroke-width="15"
@@ -47,8 +55,11 @@
         :format="(percentage:any) => (percentage === 100 ? 'Full' : `${percentage}%`)"
       />
     </div>
+    <!-- 用户团队信息展示区域 -->
     <div :class="buildWrap(component, 'teams')">
+      <!-- 仅当用户有团队时显示 -->
       <div style="display: flex" v-if="hasTeam">
+        <!-- 循环展示用户的所有团队 -->
         <div class="team-item" v-for="(item, index) in userStore.user.teams" :key="index">
           <div class="header">
             <img :src="useTeam(item.avatar)" alt="" class="teamIcons" />
@@ -63,6 +74,7 @@
           <el-button type="info">GOTO</el-button>
         </div>
       </div>
+      <!-- 当用户没有团队时显示的提示信息 -->
       <div v-else class="team-no">
         <p>
           You now have no Team.
@@ -71,6 +83,7 @@
       </div>
     </div>
   </div>
+  <!-- 头像选择抽屉，用于用户更换头像 -->
   <el-drawer
     v-model="avatarDrawer"
     title="Please choose your Avatar"
@@ -79,6 +92,7 @@
     size="400px"
   >
     <div class="drawer-details">
+      <!-- 头像列表，用户可以点击选择 -->
       <div class="avatar-list">
         <div
           @click="chooseAvatar(item)"
@@ -92,10 +106,12 @@
           </div>
         </div>
       </div>
+      <!-- 显示当前选择的头像 -->
       <div class="chooseInfo">
         <div>Your Avatar : {{ userStore.user.avatar }}</div>
         <div>Chosen : {{ chosenAvatar }}</div>
       </div>
+      <!-- 按钮用于提交头像更换请求 -->
       <div style="width: 100%">
         <el-button type="warning" @click="changeAvatar">
           <strong>change avatar</strong>
@@ -107,6 +123,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
+//引入图标
 import { Coffee, Platform, WarningFilled } from "@element-plus/icons-vue";
 import {
   AvatarMap,
@@ -118,17 +135,20 @@ import {
   buildWrap,
   useTeam,
 } from "../core";
-import api from "../api";
-import { user } from "../store/src/user";
-import { SVGs, useSvg } from "../components";
-import { useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+import api from "../api"; // 引入 API 调用方法
+import { user } from "../store/src/user"; // 引入用户状态管理
+import { SVGs, useSvg } from "../components"; // 引入 SVG 组件和相关 hooks
+import { useRouter } from "vue-router"; // 引入 Vue Router
+import { ElMessage } from "element-plus"; // 引入 Element Plus 消息提示组件
 
+// 控制头像选择抽屉的显示状态
 const avatarDrawer = ref(false);
 const component = "User";
 const router = useRouter();
 const userStore = user();
+// 选中的头像
 const chosenAvatar = ref(userStore.user.avatar);
+// 计算用户的繁忙程度
 const busyValue = computed(() => {
   let { todos, todoNumber } = userStore.user;
   let { fatal, focus, mid, low } = todos ?? {
@@ -137,8 +157,10 @@ const busyValue = computed(() => {
     mid: [],
     low: [],
   };
+  // 根据不同优先级的待办事项计算得分
   let score = fatal.length * 5 + mid.length * 2 + low.length * 1;
   let total = todoNumber * 5;
+  // 返回繁忙程度的分数,最大值为5最小值为0
   return (score / total) * 5;
 });
 const busyIcons = [Coffee, Platform, WarningFilled];
@@ -188,7 +210,7 @@ const busyTemplate = computed(() => {
   return `busy level: ${msg}!`;
 });
 
-/**用户信息列表 */
+// 用户信息列表包括用户名、姓名、邮箱等
 const userInfoList = computed(() => {
   let { user } = userStore;
   return [
@@ -235,6 +257,7 @@ const userInfoList = computed(() => {
   ];
 });
 
+// 计算用户解决的待办事项百分比
 const countSolve = computed(() => {
   let { todoNumber, totalTodo } = userStore.user;
   if (todoNumber === 0 || totalTodo === 0) {
@@ -246,6 +269,7 @@ const countSolve = computed(() => {
   return solveF;
 });
 
+// 根据是否为团队所有者返回用户角色
 const setTeamRole = computed(() => (owner: string) => {
   let { username } = userStore.user;
   if (username === owner) {
@@ -255,14 +279,17 @@ const setTeamRole = computed(() => (owner: string) => {
   }
 });
 
+// 判断用户是否属于某个团队
 const hasTeam = computed(() => {
   return userStore.user.teams?.length ?? 0 !== 0;
 });
 
+// 路由跳转到协作页面
 const toCollaborate = () => {
   router.push({ path: "collaborate" });
 };
 
+// 路由跳转到计划页面
 const toPlan = () => {
   router.push({ path: "plan" });
 };

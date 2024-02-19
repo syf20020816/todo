@@ -1,24 +1,33 @@
 <template>
   <div id="timeline-view">
+    <!-- 时间轴的左侧部分，显示Todo项的时间线 -->
     <div class="left">
+      <!-- 使用Element Plus的时间轴组件 -->
       <el-timeline>
+        <!-- 遍历传入的Todo数据，并为每个Todo创建一个时间轴项 -->
+        <!-- 显示Todo的起始和结束日期 -->
         <el-timeline-item
           :timestamp="`${item.date.start}~${item.date.end}`"
           placement="top"
           v-for="(item, index) in datas"
           :key="index"
         >
+          <!-- 点击Todo项时，设置当前Todo为被点击的Todo -->
           <el-card @click="currentTodo = item">
             <h4>
+              <!-- 显示Todo的优先级和状态，使用计算属性来设置样式 -->
               <span class="priority" :style="getPriorityDot(item)"></span>
               <span
                 class="priority"
                 style="border-radius: 50%"
                 :style="getStatusDot(item)"
               ></span>
+              <!-- Todo的名称 -->
               <span class="collapse-title">{{ item.name }}</span>
             </h4>
+            <!-- Todo的描述 -->
             <p>{{ item.description }}</p>
+            <!-- 显示Todo的标签 -->
             <div class="operation-btn-wrapper">
               <el-tag
                 style="margin: 0 6px"
@@ -37,6 +46,8 @@
         </el-timeline-item>
       </el-timeline>
     </div>
+    <!-- 时间轴的右侧部分，显示选中的Todo的详细信息 -->
+    <!-- 不能改变TODO，不能点击完成按钮 -->
     <div class="right">
       <TODOItem
         :current-todo="currentTodo"
@@ -48,17 +59,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from "vue";
+// 引入Vue的响应式API和计算属性
+import { ref, computed } from "vue";
+// 引入Todo类型和优先级、状态相关的功能
 import { Todo, Priorities, usePriorityColor, Status, useStatus } from "../../../core";
+// 引入TODOItem组件
 import { TODOItem } from "../index";
+// 定义接收的props，即Todo数组
 const props = defineProps<{ datas: Todo[] }>();
 
+// 定义一个响应式引用，用于存储当前选中的Todo
 const currentTodo = ref<Todo>();
+// 计算属性，用于根据Todo的优先级获取相应的样式
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low;
   return `background-color : ${usePriorityColor(priority)}`;
 });
 
+// 计算属性，用于根据Todo的状态获取相应的样式
 const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START;
   return `background-color : ${useStatus(status)}`;

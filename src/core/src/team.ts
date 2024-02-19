@@ -36,12 +36,20 @@ export const useTeam = (teamEnum: TeamAvatars) => {
 }
 
 export type Team = {
+  // 团队ID
   id: string
+  // 团队名称
   name: string
+  // 团队成员信息
   members: Array<User>
+  // 团队持有人
   owner: string
+  // 团队头像
   avatar: TeamAvatars
+  // 团队概述和说明
   description: string
+  // 团队创建日期
   date: Date
+  // 团队所属TODO
   todos: Todo[]
 }

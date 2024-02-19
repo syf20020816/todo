@@ -43,7 +43,7 @@ $colors: map.deep-merge(
 );
 */
 
-/* 只需要重写你需要的即可 */
+/* 通过@forward指令重写element-plus默认的scss变量，特别是将主题颜色primary的基础色改为#3b3a39 */
 @forward "element-plus/theme-chalk/src/common/var.scss" with (
   $colors: (
     "primary": (
@@ -52,17 +52,20 @@ $colors: map.deep-merge(
   )
 );
 
-// 如果只是按需导入，则可以忽略以下内容。
-// 如果你想导入所有样式:
+/* 导入Element Plus的所有默认样式，使用时需确保项目配置正确 */
 @use "element-plus/theme-chalk/src/index.scss" as *;
+/* 导入自定义的变量文件，可以在此文件中定义自己需要覆盖的变量 */
 @use "./src/var.scss" as *;
 
-//以下是常用的默认样式修改
+/* 以下是对一些HTML元素和Element Plus组件的样式进行全局重置和自定义 */
+
+/* 重置body的默认外边距和内边距 */
 body {
   padding: 0;
   margin: 0;
 }
 
+/* 为Element Plus的布局容器、头部、主体、页脚设置统一的字体样式 */
 .el-container,
 .el-header,
 .el-main,
@@ -75,25 +78,26 @@ i,
     sans-serif;
 }
 
+/* 移除链接的下划线 */
 a {
   text-decoration: none;
 }
 
+/* 移除列表项的默认样式 */
 li {
   list-style: none;
 }
 
-.el-tabs__item:hover {
+/* 自定义Element Plus标签页项的悬浮和激活状态下的颜色 */
+.el-tabs__item:hover,
+.el-tabs__item.is-active {
   color: $force-color;
 }
-.el-tabs__item.is-active {
-  color: $force-color !important;
-}
-
 .el-tabs__active-bar {
   background-color: $force-color;
 }
 
+/* 隐藏加载动画的圆形进度条，并自定义加载动画的样式 */
 .el-loading-spinner .circular {
   display: none !important;
 }
@@ -110,6 +114,7 @@ li {
   text-align: center;
 }
 
+/* 自定义加载文字的样式 */
 .el-loading-text {
   width: 300px;
   position: absolute;
@@ -121,6 +126,7 @@ li {
   font-size: 18px !important;
 }
 
+/* 设置根元素的字体、行高、字体权重、基础字号、颜色方案，并自定义一些全局颜色变量 */
 :root {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   line-height: 1.5em;
@@ -136,6 +142,7 @@ li {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  // 覆盖基本样式颜色
   --el-rate-text-color: #fff;
   --el-menu-text-color: #dfdfdf;
   --el-text-color-primary: #7a7a7a;
@@ -143,22 +150,26 @@ li {
   --el-table-header-bg-color: #3b3a39;
 }
 
+/* 为应用程序根元素设置默认文本对齐方式 */
 #app {
   margin: 0;
   padding: 0;
   text-align: center;
 }
 
+/* 自定义图标字体的大小 */
 .iconfont {
   font-size: 2vh !important;
 }
 
+/* 自定义弹出框的最大高度和滚动条样式 */
 .el-popover {
   max-height: 273px !important;
   overflow-y: scroll;
   scrollbar-width: thin;
 }
 
+/* 自定义搜索结果包装器的样式，包括头部和中心部分的布局、滚动条和文本对齐 */
 .search-result-wrapper {
   .header {
     display: flex;
@@ -184,7 +195,7 @@ li {
       padding: 6px;
       border-top: 2px dashed #3b3a39;
       border-bottom: 2px dashed #3b3a39;
-
+      
       .item-des-wrapper {
       }
     }

@@ -214,29 +214,46 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed, toRaw } from 'vue'
+// 导入Todo项定义
 import { TODOItem } from '../index'
+// 导入Element Plus图标
 import { CircleClose, QuestionFilled, CirclePlusFilled } from '@element-plus/icons-vue'
+// 导入业务逻辑、工具函数和类型定义
 import { Todo, Priorities, Avatars, Status, usePriorityColor, useAvatar, useStatus, convertFileToBase64, ITagProps, priorityOptions, effectOptions, typeOptions, Annex } from '../../../core'
+// 导入Element Plus组件类型定义
 import { type UploadProps, type UploadUserFile, type UploadInstance, ElMessage, type UploadFile, type UploadFiles, FormRules, FormInstance } from 'element-plus'
+// 导入API服务
 import api from '../../../api'
+// 导入用户状态管理
 import { user as userPinia } from '../../../store/src/user'
 
+// 定义接收的props类型
 const props = defineProps<{
   datas: Todo[]
 }>()
+// 使用用户状态管理
 const userStore = userPinia()
+// 当前日期
 const date = new Date()
+// 控制添加Todo对话框的显示状态
 const addTodoVisible = ref(false)
+// Todo表单的引用
 const todoFormRef = ref<FormInstance>()
+// 控制添加标签对话框的显示状态
 const addTagVisible = ref(false)
+// 星期数组
 const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+// 上传组件的引用
 const uploadRef = ref<UploadInstance>()
+// 标记Todo是否在变更中
 const isChange = ref(false)
+// Todo标签数据
 const todoTag = ref<ITagProps>({
   type: '',
   effect: 'dark',
   label: ''
 })
+// 变更的Todo项
 const changeTodoItem = ref<{
   id: string
   owner: string
@@ -244,9 +261,12 @@ const changeTodoItem = ref<{
   id: '',
   owner: ''
 })
+// 文件列表
 const fileList = ref<UploadUserFile[]>([])
 
+// 当前操作的Todo
 const currentTodo = ref<any>()
+// 计算属性，判断当前Todo是否显示详情
 const isShow = computed(() => {
   if (typeof currentTodo.value === 'undefined') {
     return false
@@ -254,15 +274,17 @@ const isShow = computed(() => {
   const empty = Object.keys(currentTodo.value).length === 0 && currentTodo.value.constructor === Object
   return !empty
 })
+// 获取优先级对应的点的样式
 const getPriorityDot = computed(() => (item: Todo) => {
   let { priority } = item || Priorities.Low
   return `background-color : ${usePriorityColor(priority)}`
 })
-
+// 获取状态对应的点的样式
 const getStatusDot = computed(() => (item: Todo) => {
   let { status } = item || Status.NOT_START
   return `background-color : ${useStatus(status)}`
 })
+// 对话框标题，根据是添加还是修改Todo变化
 const dialogTitle = computed(() => {
   if (isChange.value) {
     return 'Change Todo'
@@ -270,6 +292,7 @@ const dialogTitle = computed(() => {
   return 'Add New Todo'
 })
 
+// 对话框按钮文本，根据是添加还是修改Todo变化
 const dialogBtn = computed(() => {
   if (isChange.value) {
     return 'Change'
@@ -277,10 +300,12 @@ const dialogBtn = computed(() => {
   return 'Add'
 })
 
+
 const showTodoDetails = (item: Todo) => {
   currentTodo.value = item
 }
 
+// 计算当前用户对Todo的权限
 const rule = computed(()=>{
   let todoRule = 0;
   if(currentTodo.value?.performers.filter((x:any)=>x.username===userStore.user.username).length!==0){
@@ -293,7 +318,7 @@ const rule = computed(()=>{
   return todoRule
 })
 
-
+// Todo表单数据类型定义
 interface TodoRuleForm {
   name: string
   priority: Priorities
@@ -319,6 +344,7 @@ const todoForm = reactive<TodoRuleForm>({
   isFocus: false
 })
 
+// 表单验证规则
 const rules = reactive<FormRules<TodoRuleForm>>({
   name: [
     { required: true, message: 'Please input Todo name', trigger: 'blur' },
@@ -333,6 +359,7 @@ const rules = reactive<FormRules<TodoRuleForm>>({
   ]
 })
 
+// 检查日期是否设置
 const checkDate = () => {
   let { date } = todoForm
   if (!date) {
@@ -344,6 +371,7 @@ const checkDate = () => {
   }
 }
 
+// 将表单数据转换为Todo对象
 const convertTodo = (): Todo => {
   let during = todoForm.date[1].getTime() - todoForm.date[0].getTime()
   let currentTime = new Date().getTime() - todoForm.date[0].getTime()
@@ -372,7 +400,7 @@ const convertTodo = (): Todo => {
   todoForm.annexs = []
   return todo
 }
-
+// 添加新的Todo
 const addNewTodo = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
@@ -416,7 +444,7 @@ const uploadAndConvertBase64 = (uploadFile: UploadFile, _uploadFiles: UploadFile
     })
   }
 }
-
+// 打开添加Todo对话框
 const openAddDialog = () => {
   addTodoVisible.value = true
   isChange.value = false
@@ -458,6 +486,7 @@ const addTag = () => {
   } as ITagProps
 }
 
+// 自定义日期选择器选项
 const shortcuts = [
   {
     text: 'Next day',
@@ -488,10 +517,12 @@ const shortcuts = [
   }
 ];
 
+// 移除Tag
 const removeTag = (tag: ITagProps) => {
   todoForm.tags = todoForm.tags.filter(item => item !== tag)
 }
 
+// 修改TODO
 const changeTodo = (todo: Todo) => {
   todoForm.name = todo.name
   todoForm.description = todo.description ?? ''

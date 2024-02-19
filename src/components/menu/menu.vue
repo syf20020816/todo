@@ -2,6 +2,7 @@
 //对Menu菜单项的封装
 <template>
   <div :id="buildView(component)">
+    <!-- 使用El-Menu -->
     <el-menu
       active-text-color="#ff9c4b"
       background-color="#252423"
@@ -10,6 +11,7 @@
       text-color="#fff"
       @select="selectMenu"
     >
+      <!-- 循环生成每个menu项 -->
       <el-menu-item :index="item.index" v-for="item in menuList" :key="item.index">
         <el-tooltip :content="item.label" placement="right">
           <component :is="getMenuIcon(item)"></component>
