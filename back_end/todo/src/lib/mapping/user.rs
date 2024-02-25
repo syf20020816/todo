@@ -2,8 +2,8 @@ use super::Record;
 use crate::lib::{
     db::DB,
     entry::{
-        dto::{Avatars, User},
-        vo::UserPersonalSetting,
+        po::{Avatars, User},
+        dto::UserPersonalSetting,
     },
 };
 use rocket::serde::{Deserialize, Serialize};

@@ -7,8 +7,8 @@ use rocket::serde::json::Json;
 // 引入项目内部模块，包括DTOs（数据传输对象）、VOs（值对象）、错误处理以及数据库操作函数
 use crate::lib::{
     entry::{
-        dto::{self, Todo}, // DTOs，用于接收和发送数据
-        vo::{self, Team},  // VOs，用于内部逻辑处理和展示
+        po::{self, Todo}, // DTOs，用于接收和发送数据
+        dto::{self, Team},  // VOs，用于内部逻辑处理和展示
     },
     error::Error, // 错误处理模块
     mapping::{
@@ -26,7 +26,7 @@ use crate::lib::{
 
 // 创建团队的API处理函数
 #[get("/<username>/<name>")]
-pub async fn create_team(username: &str, name: &str) -> ResultJsonData<vo::User> {
+pub async fn create_team(username: &str, name: &str) -> ResultJsonData<dto::User> {
     // 通过团队名和用户名创建团队
     let query = create_team_by_name(name, username).await;
 
@@ -36,7 +36,7 @@ pub async fn create_team(username: &str, name: &str) -> ResultJsonData<vo::User>
         let _ = user.create_team(&id);
         let update_query = update_user_by_username(user).await;
         if let Some(user) = update_query {
-            let user = vo::User::from(user).await;
+            let user = dto::User::from(user).await;
             // 成功时返回更新后的用户信息
             return ResultJsonData::success(user);
         }
@@ -52,7 +52,7 @@ pub async fn create_team(username: &str, name: &str) -> ResultJsonData<vo::User>
 pub async fn update_team_members(name: &str, team: Json<Team>) -> ResultJsonData<bool> {
     // 从请求体中解析团队ID和团队信息
     let id = team.0.id.clone();
-    let mut team = dto::Team::from(team.0);
+    let mut team = po::Team::from(team.0);
     // 查询用户名对应的用户信息
     let user_query = select_user_by_username(name).await;
     if let Some(mut user) = user_query {
@@ -84,7 +84,7 @@ pub async fn update_team_members(name: &str, team: Json<Team>) -> ResultJsonData
 pub async fn update_team_info(team: Json<Team>) -> ResultJsonData<bool> {
     // 从请求体中解析团队ID和团队信息
     let id = team.0.id.clone();
-    let team = dto::Team::from(team.0);
+    let team = po::Team::from(team.0);
     // 尝试更新团队信息
     let query = update_team_by_id(&id, team).await;
     if query {

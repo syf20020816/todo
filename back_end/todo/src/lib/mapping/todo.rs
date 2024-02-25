@@ -6,7 +6,7 @@ use surrealdb::sql::Output; // 引入用于指定SQL查询结果输出类型的�
 
 use crate::lib::{
     db::DB,                     // 引入数据库操作的封装
-    entry::dto::{Status, Todo}, // 引入待办事项（Todo）的数据传输对象和状态（Status）
+    entry::po::{Status, Todo}, // 引入待办事项（Todo）的数据传输对象和状态（Status）
 };
 
 use super::{select_user_record_by_username, Record}; // 引入用户记录查询函数和Record结构体

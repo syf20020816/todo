@@ -1,8 +1,8 @@
 // 导入所需的模块和类型
-use crate::lib::entry::dto::Avatars;
-use crate::lib::entry::dto::{Signin, Signup, User};
-use crate::lib::entry::vo;
-use crate::lib::entry::vo::UserPersonalSetting;
+use crate::lib::entry::po::Avatars;
+use crate::lib::entry::po::{Signin, Signup, User};
+use crate::lib::entry::dto;
+use crate::lib::entry::dto::UserPersonalSetting;
 use crate::lib::error::Error;
 use crate::lib::mapping::{
     check_user_by_username, create_user, select_user_by_username, select_user_by_username_password,
@@ -13,7 +13,7 @@ use rocket::serde::json::Json;
 
 // 定义登录接口，接受JSON格式的登录数据
 #[post("/signin", format = "application/json", data = "<user>")]
-pub async fn signin(user: Json<Signin>) -> ResultJsonData<vo::User> {
+pub async fn signin(user: Json<Signin>) -> ResultJsonData<dto::User> {
     // 从请求体中提取用户名和密码
     let username = user.0.username();
     let password = user.0.password();
@@ -23,7 +23,7 @@ pub async fn signin(user: Json<Signin>) -> ResultJsonData<vo::User> {
     if let Some(mut user) = query {
         // 忽略密码字段，不返回给客户端
         // 登录成功，返回用户信息
-        let user = vo::User::from(user).await;
+        let user = dto::User::from(user).await;
         return ResultJsonData::success(user);
     }
     // 登录失败，返回错误信息
@@ -34,7 +34,7 @@ pub async fn signin(user: Json<Signin>) -> ResultJsonData<vo::User> {
 
 // 定义注册接口，接受JSON格式的注册数据
 #[post("/signup", format = "application/json", data = "<user>")]
-pub async fn signup(user: Json<Signup>) -> ResultJsonData<vo::User> {
+pub async fn signup(user: Json<Signup>) -> ResultJsonData<dto::User> {
     // 从请求体中提取用户信息
     let user = user.0;
     let username = user.username();
@@ -54,7 +54,7 @@ pub async fn signup(user: Json<Signup>) -> ResultJsonData<vo::User> {
         if let Some(user) = query {
             // 注册成功，忽略密码返回用户信息
             // user.skip_pwd();
-            let user = vo::User::from(user).await;
+            let user = dto::User::from(user).await;
             return ResultJsonData::success(user);
         }
         // 数据库操作失败，返回错误信息
@@ -64,12 +64,12 @@ pub async fn signup(user: Json<Signup>) -> ResultJsonData<vo::User> {
 
 // 定义获取用户信息接口
 #[get("/info/<username>", format = "application/json")]
-pub async fn get_user_info(username: &str) -> ResultJsonData<vo::User> {
+pub async fn get_user_info(username: &str) -> ResultJsonData<dto::User> {
     // 根据用户名查询用户信息
     let query = select_user_by_username(username).await;
     if let Some(user) = query {
         // 查询成功，返回用户信息
-        let user = vo::User::from(user).await;
+        let user = dto::User::from(user).await;
         return ResultJsonData::success(user);
     }
     // 用户不存在，返回错误信息
@@ -83,14 +83,14 @@ pub async fn get_user_info(username: &str) -> ResultJsonData<vo::User> {
 pub async fn set_user_setting(
     username: &str,
     user: Json<UserPersonalSetting>,
-) -> ResultJsonData<vo::User> {
+) -> ResultJsonData<dto::User> {
     // 从请求体中提取用户个人设置信息
     let user = user.0;
     // 更新数据库中的用户个人设置信息
     let query = update_user_by_personal_settings(user, username).await;
     if let Some(user) = query {
         // 更新成功，返回更新后的用户信息
-        let user = vo::User::from(user).await;
+        let user = dto::User::from(user).await;
         return ResultJsonData::success(user);
     }
     // 更新失败，返回错误信息

@@ -1,69 +1,69 @@
 <template>
   <!-- 表格视图容器 -->
-<div id="table-view">
-  <!-- 表格元素，数据来源于datas属性 -->
-  <el-table :data="datas">
-    <!-- 表格列配置 -->
-    <el-table-column type="index" label="Index" width="100px" fixed="left" />
-    <el-table-column label="Name" prop="name" width="200px" />
-    <el-table-column label="Priority" prop="priority" width="200px" />
-    <!-- 审核人列，自定义内容展示 -->
-    <el-table-column label="Reviewers" width="200px" prop="reviewers">
-      <template #default="{ row, $index }">
-        <div>{{ getReviewerName(row, $index) }}</div>
-      </template>
-    </el-table-column>
-    <!-- 执行者列，自定义内容展示 -->
-    <el-table-column label="Performers" prop="performers" width="200px">
-      <template #default="{ row, $index }">
-        <div>{{ getPerformersName(row, $index) }}</div>
-      </template>
-    </el-table-column>
-    <!-- 日期列，自定义内容展示 -->
-    <el-table-column label="Date" prop="date" width="360px">
-      <template #default="{ row, $index }">
-        <div>{{ getDate(row, $index) }}</div>
-      </template>
-    </el-table-column>
-    <!-- 标签列，自定义内容展示 -->
-    <el-table-column label="Tags" prop="tags" width="240px">
-      <template #default="{ row, $index }">
-        <span>
-          <!-- 标签循环展示 -->
-          <el-tag
-            style="margin: 0 4px"
-            v-for="tag in getTags(row, $index)"
-            :key="tag.label"
-            :type="tag.type"
-            size="small"
-            class="mx-tag"
-            round
-            :effect="tag.effect"
-            >{{ tag.label }}</el-tag
-          >
-        </span>
-      </template>
-    </el-table-column>
-    <!-- 操作列 -->
-    <el-table-column align="right" width="120px" fixed="right">
-      <template #header>
-        <span>Operation</span>
-      </template>
-    </el-table-column>
-    <!-- 展开列，用于展示更多信息 -->
-    <el-table-column type="expand" fixed="right">
-      <template #default="props">
-        <div class="expand-table-wrapper">
-          <TODOItem
-            :current-todo="props.row"
-            :is-change="false"
-            :is-compelete="false"
-          ></TODOItem>
-        </div>
-      </template>
-    </el-table-column>
-  </el-table>
-</div>
+  <div id="table-view">
+    <!-- 表格元素，数据来源于datas属性 -->
+    <el-table :data="datas">
+      <!-- 表格列配置 -->
+      <el-table-column type="index" label="Index" width="100px" fixed="left" />
+      <el-table-column label="Name" prop="name" width="200px" />
+      <el-table-column label="Priority" prop="priority" width="200px" />
+      <!-- 审核人列，自定义内容展示 -->
+      <el-table-column label="Reviewers" width="200px" prop="reviewers">
+        <template #default="{ row, $index }">
+          <div>{{ getReviewerName(row, $index) }}</div>
+        </template>
+      </el-table-column>
+      <!-- 执行者列，自定义内容展示 -->
+      <el-table-column label="Performers" prop="performers" width="200px">
+        <template #default="{ row, $index }">
+          <div>{{ getPerformersName(row, $index) }}</div>
+        </template>
+      </el-table-column>
+      <!-- 日期列，自定义内容展示 -->
+      <el-table-column label="Date" prop="date" width="360px">
+        <template #default="{ row, $index }">
+          <div>{{ getDate(row, $index) }}</div>
+        </template>
+      </el-table-column>
+      <!-- 标签列，自定义内容展示 -->
+      <el-table-column label="Tags" prop="tags" width="240px">
+        <template #default="{ row, $index }">
+          <span>
+            <!-- 标签循环展示 -->
+            <el-tag
+              style="margin: 0 4px"
+              v-for="tag in getTags(row, $index)"
+              :key="tag.label"
+              :type="tag.type"
+              size="small"
+              class="mx-tag"
+              round
+              :effect="tag.effect"
+              >{{ tag.label }}</el-tag
+            >
+          </span>
+        </template>
+      </el-table-column>
+      <!-- 操作列 -->
+      <el-table-column align="right" width="120px" fixed="right">
+        <template #header>
+          <span>Operation</span>
+        </template>
+      </el-table-column>
+      <!-- 展开列，用于展示更多信息 -->
+      <el-table-column type="expand" fixed="right">
+        <template #default="props">
+          <div class="expand-table-wrapper">
+            <TODOItem
+              :current-todo="props.row"
+              :is-change="false"
+              :is-compelete="false"
+            ></TODOItem>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -111,7 +111,6 @@ const getTags = computed(() => (row: any, _index: number): {
   // 直接返回row.tags数组，包含每个标签的类型(type)、效果(effect)和标签文本(label)
   return row.tags;
 });
-
 </script>
 
 <style lang="scss">
@@ -160,6 +159,7 @@ const getTags = computed(() => (row: any, _index: number): {
     box-sizing: border-box;
     padding: 16px;
     justify-content: center;
+    height: 420px;
   }
 }
 </style>

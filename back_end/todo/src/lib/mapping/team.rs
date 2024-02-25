@@ -6,7 +6,7 @@ use surrealdb::sql::Output; // 引入用于指定SQL查询结果输出类型的�
 
 use crate::lib::{
     db::DB,                 // 引入数据库操作的封装
-    entry::{dto::Team, vo}, // 引入数据传输对象（DTO）和值对象（VO）
+    entry::{po::Team, dto}, // 引入数据传输对象（DTO）和值对象（VO）
 };
 
 use super::Record; // 引入Record结构体，用于处理数据库记录

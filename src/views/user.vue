@@ -71,7 +71,9 @@
           <div style="font-size: 14px; width: 100%">
             {{ item.description }}
           </div>
-          <el-button type="info">GOTO</el-button>
+          <el-button type="info" @click="router.push({ path: '/collaborate' })"
+            >GOTO</el-button
+          >
         </div>
       </div>
       <!-- 当用户没有团队时显示的提示信息 -->
